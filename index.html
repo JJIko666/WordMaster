@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordMaster</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+   <header>
+
+    <button id="themeBtn" class="themeBtn">
+        🌙
+    </button>
+
+    <h1>📚 WordMaster</h1>
+
+    <p>Изучай английский легко!</p>
+
+</header>
+
+    <!-- Меню -->
+    <nav class="menu">
+
+        <button id="homeTab">🏠 Главная</button>
+
+        <button id="studyTab">🃏 Карточки</button>
+
+        <button id="gamesTab">🎮 Игры</button>
+
+        <button id="statsTab">📊 Статистика</button>
+
+    </nav>
+
+    <!-- Главная -->
+    <section id="home">
+        <div class="card">
+
+    <h2>📚 Мои наборы</h2>
+
+    <div id="setList">
+
+        <p>Пока наборов нет.</p>
+
+    </div>
+
+    <br>
+
+    <button id="newSetBtn">
+        ➕ Создать набор
+    </button>
+
+</div>
+
+        <div class="card">
+
+            <h2>Добавить слово</h2>
+
+            <input
+                id="english"
+                type="text"
+                placeholder="English word">
+
+            <input
+                id="russian"
+                type="text"
+                placeholder="Русский перевод">
+<input
+    id="image"
+    type="file"
+    accept="image/*"> 
+
+            <button id="saveBtn">
+                ➕ Добавить
+            </button>
+<hr style="margin:20px 0;">
+
+<h2>📥 Массовый импорт</h2>
+
+<textarea
+    id="bulkInput"
+    rows="8"
+    placeholder="house - дом
+dog - собака
+cat - кошка
+apple - яблоко"></textarea>
+
+<button id="importBtn">
+    📥 Импортировать список
+</button>
+        </div>
+
+        <div class="card">
+
+            <h2>📖 Мои слова</h2>
+            <input
+id="search"
+placeholder="Поиск слова">
+
+            <div id="wordList"></div>
+
+            <button id="clearAll">
+🗑 Очистить словарь
+</button>
+<hr style="margin:20px 0;">
+
+        </div>
+
+    </section>
+    <section id="createSet" style="display:none;">
+
+    <div class="card">
+
+        <h2>📚 Создать набор</h2>
+
+        <input
+            id="setName"
+            type="text"
+            placeholder="Название набора">
+
+        <textarea
+            id="setWords"
+            rows="12"
+            placeholder="house - дом
+dog - собака
+cat - кошка"></textarea>
+
+        <br><br>
+
+        <button id="saveSetBtn">
+            💾 Сохранить набор
+        </button>
+
+        <button id="cancelSetBtn">
+            ❌ Отмена
+        </button>
+
+    </div>
+
+</section>
+<section id="viewSet" style="display:none;">
+
+<div class="card">
+
+<h2 id="viewSetTitle">📚 Набор</h2>
+
+<div id="viewSetInfo"></div>
+
+<div id="viewWordList"></div>
+
+<br>
+
+<button id="studySetBtn">
+🃏 Учить набор
+</button>
+
+<button id="backHomeBtn">
+🏠 Назад
+</button>
+
+</div>
+
+</section>
+
+    <!-- Карточки -->
+    <section id="study" style="display:none;">
+
+        <div class="flashcard" id="flashcard">
+
+    <div class="cardInner" id="cardInner">
+
+        <!-- Передняя сторона -->
+        <div class="cardFront">
+
+            <img id="cardImage" src="">
+
+            <div id="cardFrontText">
+                English
+            </div>
+
+        </div>
+
+        <!-- Задняя сторона -->
+        <div class="cardBack">
+
+            <div id="cardBackText">
+                Русский
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<p id="cardCounter" style="text-align:center;margin-top:15px;">
+    0 / 0
+</p>
+
+       <div class="studyButtons">
+
+    <button id="prevBtn">
+        ⬅ Предыдущее
+    </button>
+
+    <button id="flipBtn">
+        🔄 Перевернуть
+    </button>
+
+    <button id="speakBtn">
+        🔊 Озвучить
+    </button>
+
+    <button id="knowBtn">
+        ✅ Знаю
+    </button>
+
+    <button id="dontKnowBtn">
+        ❌ Не знаю
+    </button>
+
+    <button id="nextBtn">
+        Следующее ➡
+    </button>
+
+</div>
+
+    </section>
+
+    <!-- Игры -->
+   <!-- Игры -->
+<section id="games" style="display:none;">
+
+<h1 class="gamesTitle">🎮 Игры</h1>
+
+<p class="gamesSubtitle">
+Выберите режим тренировки
+</p>
+
+<div class="gamesGrid">
+
+    <div class="gameCard" id="playGuess">
+        <div class="gameIcon">🧠</div>
+        <h2>Угадай перевод</h2>
+        <p>Выберите правильный перевод слова.</p>
+        <span class="playBtn">▶ Играть</span>
+    </div>
+
+    <div class="gameCard" id="playWrite">
+        <div class="gameIcon">✍️</div>
+        <h2>Напиши перевод</h2>
+        <p>Введите правильный перевод слова.</p>
+        <span class="playBtn">▶ Играть</span>
+    </div>
+
+    <div class="gameCard" id="playScramble">
+        <div class="gameIcon">🔤</div>
+        <h2>Собери слово</h2>
+        <p>Соберите английское слово из букв.</p>
+        <span class="playBtn">▶ Играть</span>
+    </div>
+
+<div class="gameCard" id="playListen">
+
+<div class="gameIcon">🎧</div>
+
+<h2>Напиши услышанное</h2>
+
+<p>Слушай слово и напечатай его.</p>
+
+<span class="playBtn">▶ Играть</span>
+
+</div>
+
+<div class="gameCard" id="playExam">
+    <div class="gameIcon">🏆</div>
+
+    <h2>Экзамен</h2>
+
+    <p>Проверь свои знания.</p>
+
+    <span class="playBtn">▶ Играть</span>
+</div>
+
+</div>
+
+</section>
+
+<section id="guessGame" style="display:none;">
+
+<div class="card">
+
+<h2>🧠 Угадай перевод</h2>
+
+<select id="guessSet">
+<option value="all">📚 Все слова</option>
+</select>
+
+<h2 id="gameWord">Нажми «Начать игру»</h2>
+
+<div id="answers"></div>
+
+<button id="startGameBtn">▶ Начать игру</button>
+<button id="exitGameBtn">❌ Выйти</button>
+
+<h3 id="gameResult"></h3>
+
+</div>
+
+</section>
+
+<section id="writeGame" style="display:none;">
+
+<div class="card">
+
+<h2>✍️ Напиши перевод</h2>
+
+<h3 id="writeWord">
+Нажми «Начать»
+</h3>
+
+<input id="writeAnswer" type="text">
+
+<button id="checkAnswerBtn">✅ Проверить</button>
+
+<select id="writeSet">
+<option value="all">📚 Все слова</option>
+</select>
+
+<button id="startWriteBtn">▶ Начать</button>
+<button id="exitWriteBtn">❌ Выйти</button>
+
+<h3 id="writeResult"></h3>
+
+</div>
+
+</section>
+
+<section id="scrambleGame" style="display:none;">
+
+<div class="card">
+
+<h2>🔤 Собери слово</h2>
+
+<h3 id="scrambleTranslate">Перевод</h3>
+
+<div id="letters"></div>
+
+<h2 id="scrambleAnswer"></h2>
+
+<button id="checkWordBtn">✅ Проверить</button>
+
+<select id="scrambleSet">
+<option value="all">📚 Все слова</option>
+</select>
+
+<button id="newWordBtn">🔄 Новое слово</button>
+
+<button id="exitScrambleBtn">
+❌ Выйти
+</button>
+
+<h3 id="scrambleResult"></h3>
+
+</div>
+
+</section>
+<section id="examGame" style="display:none;">
+
+<div class="card">
+
+<h2>🏆 Экзамен</h2>
+
+<h3 id="examCounter">
+Вопрос 1 / 20
+</h3>
+
+<h2 id="examWord">
+Нажми "Начать"
+</h2>
+
+<div id="examAnswers"></div>
+
+<button id="startExamBtn">
+▶ Начать экзамен
+</button>
+
+<button id="exitExamBtn">
+❌ Выйти
+</button>
+
+<h3 id="examResult"></h3>
+
+</div>
+
+</section>
+<section id="listenGame" style="display:none;">
+
+<div class="card">
+
+<h2>🎧 Напиши услышанное</h2>
+
+<select id="listenSet">
+    <option value="all">📚 Все слова</option>
+</select>
+
+<h3 id="listenWord">
+Нажми «Прослушать»
+</h3>
+
+<input
+id="listenAnswer"
+type="text"
+placeholder="Введите слово">
+
+<div style="margin-top:15px;">
+
+<button id="playSoundBtn">
+🔊 Прослушать
+</button>
+
+<button id="checkListenBtn">
+✅ Проверить
+</button>
+
+<button id="nextListenBtn">
+➡ Следующее
+</button>
+
+<button id="exitListenBtn">
+❌ Выйти
+</button>
+
+</div>
+
+<h3 id="listenResult"></h3>
+
+</div>
+
+</section>
+<section id="listenGame" style="display:none;">
+
+<div class="card">
+
+<h2>🎧 Напиши услышанное</h2>
+
+<h3 id="listenWord">
+Нажми "Начать"
+</h3>
+
+<input
+id="listenAnswer"
+type="text"
+placeholder="Введите услышанное">
+
+<button id="playSoundBtn">
+🔊 Прослушать
+</button>
+
+<button id="checkListenBtn">
+✅ Проверить
+</button>
+
+<button id="startListenBtn">
+▶ Начать
+</button>
+
+<button id="exitListenBtn">
+❌ Выйти
+</button>
+
+<h3 id="listenResult"></h3>
+
+</div>
+
+</section>
+<section id="listenGame" style="display:none;">
+
+<div class="card">
+
+<h2>🎧 Напиши услышанное</h2>
+
+<select id="listenSet">
+<option value="all">📚 Все слова</option>
+</select>
+
+<h2 id="listenWord">
+Нажми "Начать"
+</h2>
+
+<input
+id="listenAnswer"
+type="text"
+placeholder="Напиши слово">
+
+<br><br>
+
+<button id="repeatListenBtn">
+🔊 Повторить
+</button>
+
+<button id="checkListenBtn">
+✅ Проверить
+</button>
+
+<button id="startListenBtn">
+▶ Начать
+</button>
+
+<button id="exitListenBtn">
+❌ Выйти
+</button>
+
+<h3 id="listenResult"></h3>
+
+</div>
+
+</section>
+
+    <!-- Статистика -->
+  <section id="stats" style="display:none;">
+
+<div class="statsGrid">
+
+<div class="statCard">
+<h2>📚 Всего слов</h2>
+<div class="statCard">
+
+<h2>⭐ Уровень</h2>
+
+<h1 id="level">1</h1>
+
+<h3 id="rank">
+🌱 Новичок
+</h3>
+
+<p id="xpText">0 / 100 XP</p>
+
+<div class="progressBar">
+    <div id="xpBar" class="progressFill"></div>
+</div>
+
+</div>
+<h1 id="statWords">0</h1>
+</div>
+
+<div class="statCard">
+<h2>❤️ Любимых</h2>
+<h1 id="statFavorite">0</h1>
+</div>
+
+<div class="statCard">
+<h2>📖 Обычных</h2>
+<h1 id="statNormal">0</h1>
+</div>
+
+<div class="statCard">
+<h2>🎯 Знание</h2>
+<h1 id="statProgress">0%</h1>
+
+<div class="progressBar">
+<div
+id="progressFill"
+class="progressFill">
+</div>
+</div>
+
+</div>
+
+<div class="statCard">
+<h2>🏆 Правильных</h2>
+<h1 id="correctCount">0</h1>
+</div>
+
+<div class="statCard">
+<h2>❌ Ошибок</h2>
+<h1 id="wrongCount">0</h1>
+</div>
+
+<div class="statCard">
+<h2>⏱ Время обучения</h2>
+<h1 id="studyTime">0 мин</h1>
+</div>
+
+<div class="statCard">
+<h2>🔥 Серия</h2>
+<h1 id="streak">1</h1>
+</div>
+
+</div>
+
+<!-- Достижения -->
+<div class="card achievements">
+
+    <h2>🏅 Достижения</h2>
+
+    <div id="achievementList" class="achievementGrid">
+
+        <div class="achievement locked" id="achWords">
+            <div class="badge">📚</div>
+            <h3>Первые слова</h3>
+            <p>Добавьте 10 слов</p>
+        </div>
+
+        <div class="achievement locked" id="achStudy">
+            <div class="badge">🎓</div>
+            <h3>Ученик</h3>
+            <p>Получите 100 XP</p>
+        </div>
+
+        <div class="achievement locked" id="achMaster">
+            <div class="badge">👑</div>
+            <h3>Мастер</h3>
+            <p>Достигните 5 уровня</p>
+        </div>
+
+        <div class="achievement locked" id="achPerfect">
+            <div class="badge">🏆</div>
+            <h3>Без ошибок</h3>
+            <p>10 правильных ответов подряд</p>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Daily Quests -->
+<div class="card">
+
+    <h2>🎯 Ежедневные задания</h2>
+
+    <div id="dailyQuests"></div>
+
+</div>
+
+</section>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
