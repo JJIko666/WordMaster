@@ -1191,3 +1191,340 @@ opacity:.8;
     margin-top:10px;
 
 }
+/* ===================================== */
+/* 📱 МОБИЛЬНАЯ ВЕРСИЯ */
+/* ===================================== */
+
+@media (max-width: 900px){
+
+.container{
+    width:95%;
+    padding:15px;
+}
+
+header h1{
+    font-size:34px;
+}
+
+header p{
+    font-size:18px;
+}
+
+.menu{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.menu button{
+    width:100%;
+    font-size:17px;
+}
+
+.gamesGrid{
+    grid-template-columns:1fr;
+}
+
+.statsGrid{
+    grid-template-columns:1fr;
+}
+
+.studyButtons{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.studyButtons button{
+    width:100%;
+}
+
+.flashcard{
+    width:100%;
+    height:260px;
+}
+
+.cardFrontText,
+.cardBackText{
+    font-size:34px;
+}
+
+.card img{
+    max-width:100%;
+    height:auto;
+}
+
+input,
+textarea,
+select,
+button{
+    width:100%;
+    box-sizing:border-box;
+}
+
+.word{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.word button{
+    width:100%;
+}
+
+.setButtons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+.setButtons button{
+    width:100%;
+}
+
+.progressBar{
+    width:100%;
+}
+
+}
+@media (max-width:500px){
+
+header h1{
+    font-size:28px;
+}
+
+header p{
+    font-size:16px;
+}
+
+.flashcard{
+    height:220px;
+}
+
+.cardFrontText,
+.cardBackText{
+    font-size:28px;
+}
+
+.gamesTitle{
+    font-size:36px;
+}
+
+.gamesSubtitle{
+    font-size:16px;
+}
+
+.gameCard{
+    padding:20px;
+}
+
+.gameIcon{
+    font-size:48px;
+}
+
+}
+/* ========================= */
+/* ЭССЕ И ПИСЬМА */
+/* ========================= */
+
+.essayHeader {
+    text-align: center;
+}
+
+.essayHeader p {
+    opacity: 0.8;
+}
+
+
+#essayTitle,
+#essayType,
+#essayText {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    margin-bottom: 15px;
+
+}
+
+
+#essayTitle {
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+
+    font-size: 17px;
+
+}
+
+
+#essayType {
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+
+    font-size: 16px;
+
+}
+
+
+#essayText {
+
+    min-height: 350px;
+
+    resize: vertical;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    border: 1px solid #ccc;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    font-family: inherit;
+
+}
+
+
+.essayButtons {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.essayButtons button {
+
+    flex: 1;
+
+    min-width: 130px;
+
+}
+
+
+.essayItem {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+
+    border-radius: 14px;
+
+    background: rgba(128,128,128,0.12);
+
+}
+
+
+.essayInfo {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.essayInfo h3 {
+
+    margin-top: 0;
+
+}
+
+
+.essayInfo p {
+
+    opacity: 0.75;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+.essayActions {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+
+.essayActions button {
+
+    min-width: 45px;
+
+    padding: 10px;
+
+}
+
+
+/* МОБИЛЬНАЯ ВЕРСИЯ */
+
+@media (max-width: 600px) {
+
+    .essayItem {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .essayActions {
+
+        width: 100%;
+
+    }
+
+
+    .essayActions button {
+
+        flex: 1;
+
+    }
+
+
+    .essayButtons {
+
+        flex-direction: column;
+
+    }
+
+
+    .essayButtons button {
+
+        width: 100%;
+
+    }
+
+
+    #essayText {
+
+        min-height: 280px;
+
+    }
+
+}
