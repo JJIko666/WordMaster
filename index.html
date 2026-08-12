@@ -24,17 +24,19 @@
 </header>
 
     <!-- Меню -->
-    <nav class="menu">
+  <nav class="menu">
 
-        <button id="homeTab">🏠 Главная</button>
+    <button id="homeTab">🏠 Главная</button>
 
-        <button id="studyTab">🃏 Карточки</button>
+    <button id="studyTab">🃏 Карточки</button>
 
-        <button id="gamesTab">🎮 Игры</button>
+    <button id="gamesTab">🎮 Игры</button>
 
-        <button id="statsTab">📊 Статистика</button>
+    <button id="essayTab">✍️ Эссе</button>
 
-    </nav>
+    <button id="statsTab">📊 Статистика</button>
+
+</nav>
 
     <!-- Главная -->
     <section id="home">
@@ -518,6 +520,112 @@ placeholder="Напиши слово">
 <h3 id="listenResult"></h3>
 
 </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- ЭССЕ И ПИСЬМА -->
+<!-- ========================= -->
+
+<section id="essays" style="display:none;">
+
+    <div class="card essayHeader">
+
+        <h2>✍️ Мои эссе и письма</h2>
+
+        <p>
+            Пиши, сохраняй и редактируй свои работы
+        </p>
+
+        <button id="newEssayBtn">
+            ➕ Новая работа
+        </button>
+
+    </div>
+
+
+    <!-- Список работ -->
+
+    <div class="card">
+
+        <h2>📚 Мои работы</h2>
+
+        <div id="essayList">
+
+            <p>
+                Пока нет сохранённых работ.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Редактор -->
+
+    <div
+        class="card"
+        id="essayEditor"
+        style="display:none;"
+    >
+
+        <h2 id="essayEditorTitle">
+            📝 Новая работа
+        </h2>
+
+
+        <input
+            id="essayTitle"
+            type="text"
+            placeholder="Название работы"
+        >
+
+
+        <select id="essayType">
+
+            <option value="essay">
+                📝 Эссе
+            </option>
+
+            <option value="letter">
+                ✉️ Письмо
+            </option>
+
+            <option value="article">
+                📰 Статья
+            </option>
+
+            <option value="other">
+                📄 Другое
+            </option>
+
+        </select>
+
+
+        <textarea
+            id="essayText"
+            rows="18"
+            placeholder="Начни писать здесь..."
+        ></textarea>
+
+
+        <div class="essayButtons">
+
+            <button id="saveEssayBtn">
+                💾 Сохранить
+            </button>
+
+            <button id="copyEssayBtn">
+                📋 Копировать
+            </button>
+
+            <button id="cancelEssayBtn">
+                ❌ Отмена
+            </button>
+
+        </div>
+
+    </div>
 
 </section>
 
