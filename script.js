@@ -2321,6 +2321,25 @@ const essayType =
 
 const essayText =
     document.getElementById("essayText");
+    const essayWordCount = document.getElementById("essayWordCount");
+
+function updateEssayWordCount() {
+
+    const text = essayText.value.trim();
+
+    if (text === "") {
+        essayWordCount.textContent = "0";
+        return;
+    }
+
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+
+    essayWordCount.textContent = words.length;
+}
+
+essayText.addEventListener("input", updateEssayWordCount);
+
+updateEssayWordCount();
 
 const saveEssayBtn =
     document.getElementById("saveEssayBtn");
@@ -2697,3 +2716,15 @@ function escapeEssayHTML(text) {
         .replace(/'/g, "&#039;");
 
 }
+// Проверка вкладки Эссе
+essayTab.addEventListener("click", function () {
+
+    console.log("Вкладка Эссе нажата");
+
+    hideAll();
+
+    essaysSection.style.display = "block";
+
+    showEssays();
+
+});
