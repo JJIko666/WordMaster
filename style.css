@@ -1,2711 +1,1558 @@
-// ---------- Элементы ----------
-const englishInput = document.getElementById("english");
-const russianInput = document.getElementById("russian");
-const imageInput = document.getElementById("image");
-const saveBtn = document.getElementById("saveBtn");
-const wordList = document.getElementById("wordList");
-const bulkInput = document.getElementById("bulkInput");
-const importBtn = document.getElementById("importBtn");
-const setList = document.getElementById("setList");
-const newSetBtn = document.getElementById("newSetBtn");
-const createSet = document.getElementById("createSet");
-const viewSet = document.getElementById("viewSet");
-const viewSetTitle = document.getElementById("viewSetTitle");
-const viewSetInfo = document.getElementById("viewSetInfo");
-const viewWordList = document.getElementById("viewWordList");
-const studySetBtn = document.getElementById("studySetBtn");
-const backHomeBtn = document.getElementById("backHomeBtn");
-const setName = document.getElementById("setName");
-const setWords = document.getElementById("setWords");
-const writeSet = document.getElementById("writeSet");
-const guessSet = document.getElementById("guessSet");
-const scrambleSet = document.getElementById("scrambleSet");
-const saveSetBtn = document.getElementById("saveSetBtn");
-const cancelSetBtn = document.getElementById("cancelSetBtn");
-const search = document.getElementById("search");
-const clearAll = document.getElementById("clearAll");
-const themeBtn = document.getElementById("themeBtn");
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
 
-// ======================
-// НАПИШИ УСЛЫШАННОЕ
-// ======================
+body{
+    margin:0;
+    min-height:100vh;
 
-const listenWord = document.getElementById("listenWord");
-const listenSet = document.getElementById("listenSet");
-const listenAnswer = document.getElementById("listenAnswer");
-const playSoundBtn = document.getElementById("playSoundBtn");
-const checkListenBtn = document.getElementById("checkListenBtn");
-const nextListenBtn = document.getElementById("nextListenBtn");
-const exitListenBtn = document.getElementById("exitListenBtn");
-const listenResult = document.getElementById("listenResult");
+    background:
+    radial-gradient(circle at top,#3b82f6 0%,#111827 45%,#030712 100%);
 
-let listenWords = [];
-let currentListenWord = null;
+    color:white;
 
-let examWords = [];
-let examQuestion = 0;
-let examCorrect = 0;
+    display:flex;
+    justify-content:center;
 
+    padding:35px;
 
-// ---------- Игра "Напиши перевод" ----------
-const writeWord = document.getElementById("writeWord");
-const writeAnswer = document.getElementById("writeAnswer");
-const checkAnswerBtn = document.getElementById("checkAnswerBtn");
-const startWriteBtn = document.getElementById("startWriteBtn");
-const exitWriteBtn = document.getElementById("exitWriteBtn");
-const writeResult = document.getElementById("writeResult");
+    font-family:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
 
-let writeCorrect = "";
-let writeRunning = false;
+.container{
 
+    width:1200px;
+    max-width:100%;
 
-// Вкладки
-const homeTab = document.getElementById("homeTab");
-const studyTab = document.getElementById("studyTab");
-const gamesTab = document.getElementById("gamesTab");
-const statsTab = document.getElementById("statsTab");
+    background:rgba(255,255,255,.08);
 
-// Страницы
-const home = document.getElementById("home");
-const study = document.getElementById("study");
-const games = document.getElementById("games");
-const stats = document.getElementById("stats");
-const guessGame = document.getElementById("guessGame");
-const writeGame = document.getElementById("writeGame");
-const scrambleGame = document.getElementById("scrambleGame");
-const examGame = document.getElementById("examGame");
-const listenGame =
-document.getElementById("listenGame");
-// ---------- Слова ----------
-let words = JSON.parse(localStorage.getItem("words")) || [];
-let activeWords = words;
-let currentWords = [...words];
-let currentSet = -1;
-// ======================
-// УРОВЕНЬ ИГРОКА
-// ======================
+    backdrop-filter:blur(25px);
 
-let xp = Number(localStorage.getItem("xp")) || 0;
-let level = Number(localStorage.getItem("level")) || 1;
-// ---------- Показ слов ----------
-function showWords(){
+    border:1px solid rgba(255,255,255,.15);
 
-    wordList.innerHTML = "";
+    border-radius:30px;
 
-    if(currentWords.length === 0){
+    padding:35px;
 
-        wordList.innerHTML = "<p>Пока слов нет.</p>";
-        return;
+    box-shadow:
 
-    }
-
-const text = search.value.trim().toLowerCase();
-
-currentWords.forEach((word,index)=>{
-
-    if(
-        !word.english.toLowerCase().includes(text) &&
-        !word.russian.toLowerCase().includes(text)
-    ){
-        return;
-    }
-
-        wordList.innerHTML += `
-       <div class="word">
-
-    <span>
-        ${word.favorite ? "❤️" : "🤍"}
-        <b>${word.english}</b>
-        —
-        ${word.russian}
-    </span>
-
-    <div class="wordButtons">
-
-        <button onclick="toggleFavorite(${index})">
-            ❤️
-        </button>
-
-        <button onclick="deleteWord(${index})">
-            ❌
-        </button>
-
-    </div>
-
-</div>
-        `;
-
-    });
+    0 30px 70px rgba(0,0,0,.5);
 
 }
 
-// ---------- Добавление ----------
-saveBtn.addEventListener("click",()=>{
+header{
+    text-align:center;
+    margin-bottom:25px;
+}
 
-    const english = englishInput.value.trim();
-    const russian = russianInput.value.trim();
+header h1{
 
-    if(english==="" || russian===""){
+    color:white;
 
-        alert("Заполни оба поля!");
+    font-size:48px;
 
-        return;
-    }
-
-    const file = imageInput.files[0];
-
-let image = "";
-
-if(file){
-
-    image = URL.createObjectURL(file);
+    letter-spacing:2px;
 
 }
 
-words.push({
-    english,
-    russian,
-    image,
-    favorite: false,
+header p{
 
-    level: 0,
-    correct: 0,
-    wrong: 0,
-    nextReview: Date.now()
-});
+    color:#d1d5db;
 
-localStorage.setItem(
-    "words",
-    JSON.stringify(words)
-);
-currentWords = [...words];
-    englishInput.value="";
-    russianInput.value="";
+    margin-top:10px;
 
-    showWords();
-updateCard();
-updateStats();
-
-});
-
-// ---------- Удаление ----------
-
-
-window.deleteWord = deleteWord;
-
-function deleteWord(index){
-
-    const word = currentWords[index];
-
-    const realIndex = words.findIndex(w =>
-        w.english === word.english &&
-        w.russian === word.russian
-    );
-
-    if(realIndex === -1) return;
-
-    words.splice(realIndex,1);
-
-    localStorage.setItem(
-        "words",
-        JSON.stringify(words)
-    );
-
-    currentWords = [...words];
-
-    showWords();
-    updateCard();
-    updateStats();
+    font-size:18px;
 
 }
 
-// ---------- Вкладки ----------
+.menu{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
 
-function hideAll(){
+.menu button{
+    flex:1;
+}
 
-    home.style.display = "none";
-    study.style.display = "none";
-    games.style.display = "none";
-    stats.style.display = "none";
-    createSet.style.display = "none";
-    viewSet.style.display = "none";
+button{
 
-    guessGame.style.display = "none";
-    writeGame.style.display = "none";
-    scrambleGame.style.display = "none";
-    examGame.style.display = "none";
-    listenGame.style.display = "none";
+padding:15px 22px;
+
+border:none;
+
+border-radius:18px;
+
+font-size:17px;
+
+font-weight:700;
+
+color:white;
+
+cursor:pointer;
+
+background:linear-gradient(135deg,#2563eb,#60a5fa);
+
+transition:.3s;
+
+box-shadow:
+
+0 10px 25px rgba(59,130,246,.35);
 
 }
 
-homeTab.onclick = function () {
+button:hover{
 
-    hideAll();
+transform:translateY(-5px) scale(1.03);
 
-    words = JSON.parse(localStorage.getItem("words")) || [];
+box-shadow:
 
-    currentWords = [...words];
-
-    currentSet = -1;
-
-    currentCard = 0;
-
-    home.style.display = "block";
-
-    showWords();
-    updateCard();
-
-};
-studyTab.onclick = function () {
-    hideAll();
-
-    currentWords = [...words];
-    currentSet = -1;
-    currentCard = 0;
-
-    study.style.display = "block";
-
-    updateCard();
-};
-
-gamesTab.onclick = function () {
-    hideAll();
-    games.style.display = "block";
-};
-
-statsTab.onclick = function () {
-    hideAll();
-    stats.style.display = "block";
-};
-
-showWords();
-// ===========================
-// КАРТОЧКИ
-// ===========================
-
-const flashcard = document.getElementById("flashcard");
-const cardInner = document.getElementById("cardInner");
-const cardFrontText = document.getElementById("cardFrontText");
-const cardBackText = document.getElementById("cardBackText");
-const cardImage = document.getElementById("cardImage");
-const cardCounter = document.getElementById("cardCounter");
-
-const flipBtn = document.getElementById("flipBtn");
-const nextBtn = document.getElementById("nextBtn");
-const prevBtn = document.getElementById("prevBtn");
-const speakBtn = document.getElementById("speakBtn");
-const knowBtn = document.getElementById("knowBtn");
-const dontKnowBtn = document.getElementById("dontKnowBtn");
-
-let currentCard = 0;
-let isFront = true;
-
-function updateCard(){
-
-    const reviewWords = currentWords.filter(word =>
-    !word.nextReview || word.nextReview <= Date.now()
-);
-
-if(reviewWords.length === 0){
-
-cardFrontText.textContent = "🎉 Сегодня всё повторено!";
-cardBackText.textContent = "";
-cardImage.style.display = "none";
-cardCounter.textContent = "0 / 0";
-    return;
-}
-  if(currentCard >= reviewWords.length){
-    currentCard = 0;
-}
-
-const word = reviewWords[currentCard];
-    if(word.image){
-
-    cardImage.src = word.image;
-    cardImage.style.display = "block";
-
-}else{
-
-    cardImage.style.display = "none";
+0 18px 40px rgba(59,130,246,.55);
 
 }
 
-   cardFrontText.textContent = word.english;
-cardBackText.textContent = word.russian;
+button:active{
 
-    cardCounter.textContent =
-(currentCard+1)+" / "+reviewWords.length;
-}
-
-flipBtn.onclick = ()=>{
-
-   if(currentWords.length===0) return;
-
-    isFront = !isFront;
-
-    cardInner.classList.toggle("flip");
-    updateCard();
+transform:scale(.97);
 
 }
 
-flashcard.onclick=()=>{
 
-    if(currentWords.length===0) return;
+.card{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(18px);
+    border-radius:25px;
+    padding:25px;
+    margin-bottom:25px;
+}
 
-   isFront = !isFront;
+.card h2{
+    margin-bottom:15px;
+}
 
-cardInner.classList.toggle("flip");
+input,
+textarea{
 
-    updateCard();
+width:100%;
+
+padding:16px 20px;
+
+font-size:17px;
+
+border:none;
+
+border-radius:18px;
+
+background:rgba(255,255,255,.09);
+
+backdrop-filter:blur(15px);
+
+color:white;
+
+transition:.25s;
 
 }
 
-nextBtn.onclick=()=>{
+input:focus,
+textarea:focus{
 
-    if(currentWords.length===0) return;
+outline:none;
 
-    currentCard++;
+transform:scale(1.01);
 
-   const reviewWords = currentWords.filter(word =>
-    !word.nextReview || word.nextReview <= Date.now()
-);
-
-if(currentCard >= reviewWords.length){
-
-    currentCard = 0;
+box-shadow:0 0 20px rgba(59,130,246,.45);
 
 }
 
-    cardInner.classList.remove("flip");
-    isFront = true;
+::placeholder{
+    color:#cbd5e1;
+}
 
-    updateCard();
-    saveProgress();
-    if(quests.length){
+input:focus{
+    outline:none;
+    border-color:#2575fc;
+}
 
-quests[1].progress++;
+#wordList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
 
-updateDailyQuests();
+.word{
 
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:18px 22px;
+
+margin-bottom:15px;
+
+border-radius:18px;
+
+background:rgba(255,255,255,.08);
+
+backdrop-filter:blur(20px);
+
+border:1px solid rgba(255,255,255,.12);
+
+transition:.25s;
+
+}
+
+.word:hover{
+
+transform:translateY(-4px);
+
+background:rgba(255,255,255,.12);
+
+box-shadow:0 15px 35px rgba(59,130,246,.35);
+
+}
+.studyButtons{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.studyButtons button{
+    min-width:170px;
+}
+
+@media(max-width:700px){
+
+.menu{
+    flex-direction:column;
+}
+
+.studyButtons{
+    flex-direction:column;
+}
+
+
+
+}
+#answers{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:20px;
+}
+
+.answerBtn{
+    background:#2575fc;
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:14px;
+    cursor:pointer;
+    font-size:18px;
+    transition:.2s;
+}
+
+.answerBtn:hover{
+    transform:scale(1.02);
+}
+
+.correct{
+    background:#2ecc71 !important;
+}
+
+.wrong{
+    background:#e74c3c !important;
+}
+
+.flashcard{
+    width:100%;
+    max-width:600px;
+    height:350px;
+    margin:30px auto;
+    perspective:1000px;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+.cardInner{
+    width:100%;
+    height:100%;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .6s;
+}
+
+.cardInner.flip{
+    transform:rotateY(180deg);
+}
+
+.cardFront,
+.cardBack{
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    background:white;
+    border-radius:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+
+    padding:20px;
+}
+
+.cardBack{
+    transform:rotateY(180deg);
+}
+
+#cardImage{
+
+width:180px;
+height:180px;
+object-fit:cover;
+border-radius:15px;
+
+}
+
+#cardFrontText,
+#cardBackText{
+    font-size:34px;
+    font-weight:bold;
+    text-align:center;
+}
+#createSet .card{
+
+    max-width:700px;
+    margin:auto;
+
+}
+.wordButtons{
+    display:flex;
+    gap:8px;
+}
+.setCard{
+
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+
+}
+
+.setButtons{
+
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+
+}
+
+
+
+header{
+    position:relative;
+}
+
+.themeBtn{
+
+    position:absolute;
+
+    top:0;
+
+    right:0;
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+}
+/* ===========================
+   🌙 ТЁМНАЯ ТЕМА
+=========================== */
+
+body.dark{
+    background:#121212;
+}
+
+body.dark .container{
+    background:#1e1e1e;
+    color:white;
+}
+
+body.dark header h1,
+body.dark header p,
+body.dark h2,
+body.dark h3,
+body.dark p,
+body.dark span,
+body.dark b{
+    color:white;
+}
+
+body.dark .card{
+    background:#2b2b2b;
+}
+
+body.dark .word{
+    background:#333;
+}
+
+body.dark .flashcard{
+    background:#2f2f2f;
+    color:white;
+}
+
+body.dark .cardFront,
+body.dark .cardBack{
+    background:#2f2f2f;
+    color:white;
+}
+
+body.dark input,
+body.dark textarea{
+    background:#333;
+    color:white;
+    border:2px solid #555;
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder{
+    color:#bbb;
+}
+
+body.dark button{
+    background:#3b82f6;
+    color:white;
+}
+
+body.dark button:hover{
+    background:#2563eb;
+}
+
+body.dark .answerBtn{
+    background:#3b82f6;
+}
+
+body.dark .correct{
+    background:#22c55e !important;
+}
+
+body.dark .wrong{
+    background:#ef4444 !important;
+}
+body.dark .setCard{
+    background:#333;
+    color:white;
+}
+
+body.dark .setCard h3{
+    color:white;
+}
+
+body.dark .setCard p{
+    color:white;
+}
+#letters{
+
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px;
+
+}
+
+
+.letterBtn{
+
+    width:50px;
+    height:50px;
+    font-size:24px;
+
+}
+
+
+#scrambleAnswer{
+
+    min-height:40px;
+    text-align:center;
+
+}
+#letters{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin:20px 0;
+
+}
+
+.letterBtn{
+
+    width:55px;
+    height:55px;
+
+    font-size:24px;
+    font-weight:bold;
+
+    border:none;
+    border-radius:12px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.letterBtn:hover{
+
+    transform:scale(1.08);
+
+}
+
+.letterBtn:disabled{
+
+    opacity:.35;
+    cursor:default;
+
+}
+/* ===========================
+   СТАТИСТИКА
+=========================== */
+
+.statsGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+
+    gap:20px;
+
+}
+
+.statCard{
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:22px;
+
+    padding:25px;
+
+    transition:.3s;
+position:relative;
+
+overflow:hidden;
+}
+
+.statCard:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.statNumber{
+
+    font-size:42px;
+
+    font-weight:bold;
+
+    margin-top:15px;
+
+    color:#60a5fa;
+
+}
+
+.progressBar{
+
+    width:100%;
+
+    height:12px;
+
+    margin-top:20px;
+
+    background:rgba(255,255,255,.15);
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+}
+
+.progressFill{
+
+    width:0%;
+
+    height:100%;
+
+    border-radius:30px;
+
+    background:linear-gradient(90deg,#22c55e,#3b82f6);
+
+    transition:width .5s;
+
+}
+
+.statCard{
+
+background:rgba(255,255,255,.08);
+
+backdrop-filter:blur(20px);
+
+border-radius:20px;
+
+padding:25px;
+
+text-align:center;
+
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+
+transition:.3s;
+
+}
+
+.statCard:hover{
+
+transform:translateY(-8px);
+
+}
+
+.statCard h2{
+
+font-size:18px;
+
+margin-bottom:15px;
+
+}
+
+.statCard h1{
+
+font-size:42px;
+
+color:#60a5fa;
+
+margin-bottom:15px;
+
+}
+
+.progressBar{
+
+height:14px;
+
+background:#444;
+
+border-radius:20px;
+
+overflow:hidden;
+
+}
+
+@keyframes pop{
+
+0%{
+transform:scale(.8);
+opacity:0;
+}
+
+100%{
+transform:scale(1);
+opacity:1;
 }
 
 }
 
-prevBtn.onclick=()=>{
 
-    if(currentWords.length===0) return;
+.gamesGrid{
 
-    currentCard--;
+display:grid;
 
- const reviewWords = currentWords.filter(word =>
-    !word.nextReview || word.nextReview <= Date.now()
-);
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
 
-if(currentCard < 0){
+gap:25px;
 
-    currentCard = reviewWords.length - 1;
+margin-top:20px;
 
 }
 
-    cardInner.classList.remove("flip");
-    isFront = true;
+.gameCard{
 
-    updateCard();
-    saveProgress();
+height:340px;
 
-}
+display:flex;
+flex-direction:column;
+justify-content:space-between;
 
-updateCard();
+background:rgba(255,255,255,.08);
 
-speakBtn.onclick = () => {
+backdrop-filter:blur(20px);
 
-  if(currentWords.length === 0){
+border-radius:25px;
 
-    cardFrontText.textContent = "🎉 Сегодня повторять нечего!";
-    cardBackText.textContent = "";
+padding:30px;
 
-    cardImage.style.display = "none";
+text-align:center;
 
-    cardCounter.textContent = "0 / 0";
+transition:.35s;
 
-    return;
-}
-
-    const reviewWords = currentWords.filter(word =>
-    !word.nextReview || word.nextReview <= Date.now()
-);
-
-if(reviewWords.length === 0) return;
-
-const speech = new SpeechSynthesisUtterance(
-    reviewWords[currentCard].english
-);
-
-    speech.lang = "en-US";
-speech.rate = 0.85;
-speech.pitch = 1;
-speech.volume = 1;
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(speech);
-
-}
-window.toggleFavorite = toggleFavorite;
-
-function toggleFavorite(index){
-
-    const word = currentWords[index];
-
-    const realIndex = words.findIndex(w =>
-        w.english === word.english &&
-        w.russian === word.russian
-    );
-
-    if(realIndex === -1) return;
-
-    words[realIndex].favorite = !words[realIndex].favorite;
-
-    localStorage.setItem(
-        "words",
-        JSON.stringify(words)
-    );
-
-    currentWords = [...words];
-
-    showWords();
-    updateStats();
-
-}   
-// ======================
-// СТАТИСТИКА
-// ======================
-
-const statWords = document.getElementById("statWords");
-const statFavorite = document.getElementById("statFavorite");
-const statNormal = document.getElementById("statNormal");
-const statProgress = document.getElementById("statProgress");
-const progressFill =
-document.getElementById("progressFill");
-
-const correctCount =
-document.getElementById("correctCount");
-
-const wrongCount =
-document.getElementById("wrongCount");
-
-const studyTime =
-document.getElementById("studyTime");
-
-const streak =
-document.getElementById("streak");
-
-const levelText = document.getElementById("level");
-
-const xpText =
-document.getElementById("xpText");
-
-const xpBar =
-document.getElementById("xpBar");
-
-
-function updateStats(){
-
-    const total = words.length;
-
-    const favorite = words.filter(word => word.favorite).length;
-
-    const normal = total - favorite;
-
-    let progress = 0;
-
-    if(total > 0){
-        progress = Math.round((favorite / total) * 100);
-    }
-
-    statWords.textContent = total;
-    statFavorite.textContent = favorite;
-    statNormal.textContent = normal;
-    statProgress.textContent = progress + "%";
-    progressFill.style.width = progress + "%";
-
-correctCount.textContent =
-localStorage.getItem("correct") || 0;
-
-wrongCount.textContent =
-localStorage.getItem("wrong") || 0;
-
-studyTime.textContent =
-Math.floor(words.length * 0.7) + " мин";
-
-streak.textContent =
-localStorage.getItem("streak") || 1;
-document.getElementById("progressFill").style.width =
-progress + "%";
-
+box-shadow:0 20px 40px rgba(0,0,0,.25);
 
 }
 
-function updateXP(){
+.gameCard:hover{
 
-    xp = Number(localStorage.getItem("xp")) || 0;
+transform:translateY(-12px) scale(1.04);
 
-    level = Math.floor(xp / 100) + 1;
-
-    const currentXP = xp % 100;
-
-    levelText.textContent = level;
-
-    document.getElementById("xpText").textContent =
-        currentXP + " / 100 XP";
-
-    document.getElementById("xpBar").style.width =
-        currentXP + "%";
-
-        document.getElementById("rank").textContent =
-getRank(level);
-
-    localStorage.setItem("level", level);
-}
-function addXP(amount){
-
-    xp += amount;
-
-    localStorage.setItem("xp", xp);
-
-    if(quests.length){
-
-        quests[2].progress += amount;
-
-    }
-
-    updateDailyQuests();
-
-    updateXP();
-
-}
-function getRank(level){
-
-    if(level < 5) return "🌱 Новичок";
-
-    if(level < 10) return "🥉 Ученик";
-
-    if(level < 20) return "🥈 Знаток";
-
-    if(level < 35) return "🥇 Эксперт";
-
-    if(level < 50) return "💎 Мастер";
-
-    if(level < 75) return "👑 Легенда";
-
-    return "🔥 WordMaster";
-}
-
-updateXP();
-const achievementList =
-document.getElementById("achievementList");
-
-
-const achievements = [
-
-{
-id:"first",
-icon:"🌱",
-title:"Первое слово",
-desc:"Добавить первое слово",
-check:()=>words.length>=1
-},
-
-{
-id:"words50",
-
-icon:"📚",
-
-title:"50 слов",
-
-desc:"Добавить 50 слов",
-
-goal:50,
-
-progress:()=>words.length,
-
-check:()=>words.length>=50
-},
-
-{
-id:"words100",
-icon:"📖",
-title:"100 слов",
-desc:"Сохранить 100 слов",
-check:()=>words.length>=100
-},
-
-{
-id:"favorite",
-icon:"❤️",
-title:"Коллекционер",
-desc:"Добавить 10 избранных",
-check:()=>words.filter(w=>w.favorite).length>=10
-},
-
-{
-id:"correct50",
-icon:"🎯",
-title:"Меткий",
-desc:"50 правильных ответов",
-check:()=>(
-Number(localStorage.getItem("correct"))||0)>=50
-},
-
-{
-id:"correct200",
-icon:"🏅",
-title:"Эксперт",
-desc:"200 правильных ответов",
-check:()=>(
-Number(localStorage.getItem("correct"))||0)>=200
-},
-
-{
-id:"level5",
-icon:"⭐",
-title:"Уровень 5",
-desc:"Получить 5 уровень",
-check:()=>level>=5
-},
-
-{
-id:"level10",
-icon:"👑",
-title:"Мастер",
-desc:"Получить 10 уровень",
-check:()=>level>=10
-},
-
-{
-id:"streak7",
-icon:"🔥",
-title:"7 дней подряд",
-desc:"Серия 7",
-check:()=>(
-Number(localStorage.getItem("streak"))||0)>=7
-},
-
-{
-id:"all",
-icon:"🏆",
-title:"Легенда",
-desc:"Открыть все достижения",
-check:()=>false
-}
-
-];
-
-function updateAchievements(){
-
-    achievementList.innerHTML = "";
-
-    let unlocked = 0;
-
-    achievements.forEach(a=>{
-
-        const ok = a.check();
-        const key = "achievement_" + a.id;
-
-if(ok && !localStorage.getItem(key)){
-
-localStorage.setItem(key,true);
-
+box-shadow:0 25px 60px rgba(59,130,246,.45);
 
 }
 
-        if(ok) unlocked++;
 
-        achievementList.innerHTML += `
-        <div class="badge ${ok ? "unlocked" : "locked"}">
+.gameIcon{
 
-            <div class="badgeIcon">${a.icon}</div>
+font-size:90px;
 
-            <div class="badgeTitle">${a.title}</div>
-
-            <div class="badgeDesc">${a.desc}</div>
-            <div class="badgeProgress">
-
-<div class="badgeFill"
-
-style="width:${
-a.goal
-?
-Math.min(a.progress()/a.goal*100,100)
-:
-100
-}%">
-
-</div>
-
-</div>
-
-<div class="badgeCounter">
-
-${
-a.goal
-?
-Math.min(a.progress(),a.goal)+" / "+a.goal
-:
-""
-}
-
-</div>
-
-        </div>
-        `;
-    });
-
-    // последнее достижение
-    if(unlocked === achievements.length - 1){
-
-        const last = achievementList.lastElementChild;
-
-        last.classList.remove("locked");
-        last.classList.add("unlocked");
-
-    }
-
-}
-// ======================
-// ИГРА "УГАДАЙ ПЕРЕВОД"
-// ======================
-
-const gameWord = document.getElementById("gameWord");
-const answers = document.getElementById("answers");
-const startGameBtn = document.getElementById("startGameBtn");
-const exitGameBtn = document.getElementById("exitGameBtn");
-const gameResult = document.getElementById("gameResult");
-
-let correctAnswer = "";
-let gameTimer = null;
-let gameRunning = false;
-let gameWords = [];
-let currentGameWord = null;
-
-startGameBtn.onclick = startGame;
-if (exitGameBtn) {
-
-exitGameBtn.onclick = () => {
-
-gameRunning = false;
-
-clearTimeout(gameTimer);
-
-hideAll();
-
-games.style.display = "block";
-
-};
+margin-bottom:25px;
 
 }
 
-function startGame(){
-    gameRunning = true;
+.gameCard h2{
 
-    if(gameWords.length === 0){
-
-    let sourceWords = words;
-
-    if(guessSet.value !== "all"){
-        sourceWords = sets[guessSet.value].words;
-    }
-
-    gameWords = [...sourceWords];
+margin-bottom:15px;
 
 }
 
-    let sourceWords = gameWords;
+.gameCard p{
 
-if(guessSet.value !== "all"){
+opacity:.8;
 
-    sourceWords = sets[guessSet.value].words;
+margin-bottom:20px;
 
-}
-
-if(sourceWords.length < 4){
-
-    alert("В наборе должно быть минимум 4 слова!");
-
-    return;
+line-height:1.5;
 
 }
 
-    gameResult.textContent = "";
-const randomIndex = Math.floor(Math.random() * gameWords.length);
+#gameScreen{
 
-currentGameWord = gameWords[randomIndex];
+margin-top:35px;
 
-correctAnswer = currentGameWord.russian;
+padding:35px;
 
-gameWord.textContent = currentGameWord.english;
+border-radius:25px;
 
-    let variants = [correctAnswer];
+background:rgba(255,255,255,.08);
 
-    while(variants.length < 4){
+backdrop-filter:blur(20px);
 
-       const random =
-sourceWords[Math.floor(Math.random() * sourceWords.length)].russian;
-        if(!variants.includes(random)){
-            variants.push(random);
-        }
+border:1px solid rgba(255,255,255,.12);
 
-    }
-
-    variants.sort(()=>Math.random()-0.5);
-
-    answers.innerHTML = "";
-
-    variants.forEach(answer=>{
-
-        const btn = document.createElement("button");
-
-        btn.className = "answerBtn";
-
-        btn.textContent = answer;
-
-        btn.onclick = ()=>{
-
-          if(answer===correctAnswer){
-
-    btn.classList.add("correct");
-    gameResult.textContent = "🎉 Правильно!";
-
-    gameWords.splice(randomIndex, 1);
-
-    let correct =
-    Number(localStorage.getItem("correct")) || 0;
-
-    correct++;
-    let xp =
-Number(localStorage.getItem("xp")) || 0;
-
-addXP(15);
-
-    localStorage.setItem("correct", correct);
-
-}else{
-
-    btn.classList.add("wrong");
-    gameResult.textContent =
-    "❌ Неправильно. Правильный ответ: " + correctAnswer;
-
-    let wrong =
-    Number(localStorage.getItem("wrong")) || 0;
-
-    wrong++;
-
-    localStorage.setItem("wrong", wrong);
+animation:pop .4s;
 
 }
+.gameCard button{
 
-updateStats();
+margin-top:20px;
 
+padding:16px;
 
-            gameTimer = setTimeout(() => {
+font-size:18px;
 
-    if (!gameRunning) return;
+border-radius:16px;
 
-    if (gameWords.length === 0) {
-
-        gameWord.textContent = "🏆 Молодец! Все слова пройдены.";
-
-        answers.innerHTML = "";
-
-        gameResult.textContent = "";
-
-        gameRunning = false;
-
-        gameWords = [];
-
-        return;
-
-    }
-
-    startGame();
-
-},1200);
-
-        };
-
-        answers.appendChild(btn);
-
-    });
+width:100%;
 
 }
+.statCard::before{
 
-document.addEventListener("keydown", (e) => {
+content:"";
 
-    if (study.style.display !== "block") return;
+position:absolute;
 
-    // Пробел — перевернуть карточку
-    if (e.code === "Space") {
-        e.preventDefault();
-        flipBtn.click();
-    }
+top:0;
+left:0;
 
-    // A — предыдущая карточка
-    if (e.key === "a" || e.key === "A") {
-        prevBtn.click();
-    }
+width:100%;
+height:5px;
 
-    // D — следующая карточка
-    if (e.key === "d" || e.key === "D") {
-        nextBtn.click();
-    }
-
-    // E — озвучить слово
-    if (e.key === "e" || e.key === "E") {
-        speakBtn.click();
-    }
-
-});
-
-
-// ======================
-// МАССОВЫЙ ИМПОРТ
-// ======================
-
-importBtn.onclick = function () {
-
-    const text = bulkInput.value.trim();
-
-    if (text === "") {
-        alert("Вставь список слов!");
-        return;
-    }
-
-    const lines = text.split("\n");
-
-    let added = 0;
-
-    lines.forEach(line => {
-
-        line = line.trim();
-
-        if (line === "") return;
-
-       let parts;
-
-// house - дом
-if (line.includes(" - ")) {
-
-    parts = line.split(" - ");
-
-// house-дом
-} else if (line.includes("-")) {
-
-    parts = line.split("-");
-
-// house,дом
-} else if (line.includes(",")) {
-
-    parts = line.split(",");
-
-// house = дом
-} else if (line.includes("=")) {
-
-    parts = line.split("=");
-
-// house<TAB>дом
-} else if (line.includes("\t")) {
-
-    parts = line.split("\t");
-
-// house      дом
-} else {
-
-    parts = line.trim().split(/\s+/);
-
-}
-        if (parts.length < 2) return;
-
-        const english = parts[0].trim();
-        const russian = parts[1].trim();
-        const exists = words.some(
-    word => word.english.toLowerCase() === english.toLowerCase()
-);
-
-if (exists) return;
-
-       words.push({
-    english,
-    russian,
-    image: "",
-    favorite: false,
-
-    level: 0,
-    correct: 0,
-    wrong: 0,
-    nextReview: Date.now()
-});
-
-        added++;
-
-    });
-
-    if(quests.length){
-
-quests[0].progress++;
-
-updateDailyQuests();
-
-}
-
-    localStorage.setItem("words", JSON.stringify(words));
-    
-    currentWords = [...words];
-
-    bulkInput.value = "";
-
-    showWords();
-    updateCard();
-    updateStats();
-
-    alert("✅ Добавлено " + added + " слов!");
-
-};
-// ======================
-// НАБОРЫ
-// ======================
-
-let sets = JSON.parse(localStorage.getItem("sets")) || [];
-
-function showSets() {
-
-    if (sets.length === 0) {
-
-        setList.innerHTML = "<p>Пока наборов нет.</p>";
-        return;
-
-    }
-
-    setList.innerHTML = "";
-
-    sets.forEach((set, index) => {
-
-        const progress = set.progress || 0;
-
-        setList.innerHTML += `
-        <div class="setCard">
-
-            <h2>📚 ${set.name}</h2>
-
-            <p>📖 Слов: ${set.words.length}</p>
-
-            <p>⭐ Прогресс: ${progress}%</p>
-
-            <div class="progressBar">
-                <div class="progressFill"
-                     style="width:${progress}%">
-                </div>
-            </div>
-
-            <div class="setButtons">
-
-    <button onclick="openSet(${index})">
-        📖 Открыть
-    </button>
-
-    <button onclick="studySet(${index})">
-    🃏 Учить набор
-</button>
-
-    <button onclick="editSet(${index})">
-        ✏️
-    </button>
-
-    <button onclick="deleteSet(${index})">
-        🗑
-    </button>
-
-</div>
-        </div>
-        `;
-
-    });
-writeSet.innerHTML =
-`
-<option value="all">
-📚 Все слова
-</option>
-`;
-guessSet.innerHTML = `
-<option value="all">
-📚 Все слова
-</option>
-`;
-scrambleSet.innerHTML = `
-<option value="all">
-📚 Все слова
-</option>
-`;
-listenSet.innerHTML = `
-<option value="all">
-📚 Все слова
-</option>
-`;
-
-sets.forEach((set,index)=>{
-
-    guessSet.innerHTML += `
-    <option value="${index}">
-        ${set.name}
-    </option>
-    `;
-
-});
-sets.forEach((set,index)=>{
-
-    scrambleSet.innerHTML += `
-    <option value="${index}">
-        ${set.name}
-    </option>
-    `;
-
-});
-
-sets.forEach((set, index) => {
-
-    writeSet.innerHTML += `
-    <option value="${index}">
-        ${set.name}
-    </option>
-    `;
-
-});
-sets.forEach((set,index)=>{
-
-    listenSet.innerHTML += `
-    <option value="${index}">
-        ${set.name}
-    </option>
-    `;
-
-});
-}
-
-newSetBtn.onclick = function () {
-
-    hideAll();
-
-    createSet.style.display = "block";
-
-};
-cancelSetBtn.onclick = function () {
-
-    hideAll();
-
-    home.style.display = "block";
-
-};
-saveSetBtn.onclick = function () {
-
-    const name = setName.value.trim();
-
-    if(name === ""){
-
-        alert("Введите название набора!");
-
-        return;
-
-    }
-
-    const lines = setWords.value.trim().split("\n");
-
-    const newWords = [];
-
-    lines.forEach(line => {
-
-        line = line.trim();
-
-        if(line === "") return;
-
-        let parts = [];
-
-        if(line.includes(" - ")){
-
-            parts = line.split(" - ");
-
-        }else if(line.includes("-")){
-
-            parts = line.split("-");
-
-        }else if(line.includes(",")){
-
-            parts = line.split(",");
-
-        }else if(line.includes("\t")){
-
-            parts = line.split("\t");
-
-        }
-
-        if(parts.length >= 2){
-
-newWords.push({
-
-    english: parts[0].trim(),
-    russian: parts[1].trim(),
-    image: "",
-    favorite: false,
-
-    level: 0,
-    correct: 0,
-    wrong: 0,
-    nextReview: Date.now()
-
-});
-
-        }
-
-    });
-
-    if(currentSet==-1){
-
-    sets.push({
-
-        name:name,
-        words:newWords,
-        progress:0,
-        currentCard:0
-
-    });
-
-}else{
-
-    sets[currentSet].name=name;
-    sets[currentSet].words=newWords;
-
-}
-
-    localStorage.setItem(
-        "sets",
-        JSON.stringify(sets)
-    );
-
-    setName.value = "";
-    setWords.value = "";
-
-    hideAll();
-
-    home.style.display = "block";
-
-    showSets();
-    currentSet = -1;
-
-};
-
-showSets();
-clearAll.onclick = () => {
-
-    if(confirm("Удалить все слова?")){
-
-        words = [];
-        currentWords = [];
-        currentCard = 0;
-
-        localStorage.setItem(
-            "words",
-            JSON.stringify(words)
-        );
-
-        showWords();
-        updateCard();
-        updateStats();
-
-    }
-
-};
-search.oninput = () => {
-
-    showSets();
-showWords();
-updateCard();
-updateStats();
-
-};
-
-window.deleteSet = deleteSet;
-window.openSet = openSet;
-window.studySet = studySet;
-window.editSet = editSet;
-function deleteSet(index){
-
-    if(!confirm("Удалить набор?")) return;
-
-    sets.splice(index,1);
-
-    localStorage.setItem(
-        "sets",
-        JSON.stringify(sets)
-    );
-
-    showSets();
-
-}
-function openSet(index){
-
-    currentSet = index;
-
-    hideAll();
-
-    viewSet.style.display = "block";
-
-    const set = sets[index];
-
-    viewSetTitle.textContent = "📚 " + set.name;
-
-    viewSetInfo.innerHTML =
-        "<b>Слов:</b> " + set.words.length;
-
-    viewWordList.innerHTML = "";
-
-    set.words.forEach((word,i)=>{
-
-        viewWordList.innerHTML += `
-        <div class="word">
-
-            <span>
-                <b>${word.english}</b>
-                —
-                ${word.russian}
-            </span>
-
-        </div>
-        `;
-
-    });
-
-}
-function studySet(index){
-
-    currentSet = index;
-
-    currentWords = [...sets[index].words];
-
-    currentCard = sets[index].currentCard || 0;
-
-    hideAll();
-
-    study.style.display = "block";
-
-    updateCard();
-
-}
-function editSet(index){
-
-    currentSet = index;
-
-    setName.value = sets[index].name;
-
-    let text = "";
-
-    sets[index].words.forEach(word=>{
-
-        text += word.english + " - " + word.russian + "\n";
-
-    });
-
-    setWords.value = text;
-
-    hideAll();
-
-    createSet.style.display = "block";
-
-}
-function saveProgress(){
-
-    if(currentSet === -1) return;
-
-    sets[currentSet].currentCard = currentCard;
-
-    localStorage.setItem(
-        "sets",
-        JSON.stringify(sets)
-    );
-
-}
-studySetBtn.onclick = () => {
-
-    currentWords = [...sets[currentSet].words];
-
-    currentCard = sets[currentSet].currentCard || 0;
-
-    hideAll();
-
-    study.style.display = "block";
-
-    updateCard();
-
-};
-
-backHomeBtn.onclick = () => {
-
-    hideAll();
-
-    home.style.display = "block";
-
-};
-// ======================
-// ТЕМНАЯ ТЕМА
-// ======================
-
-if(localStorage.getItem("theme") === "dark"){
-
-    document.body.classList.add("dark");
-
-    themeBtn.textContent = "☀️";
-
-}
-
-themeBtn.onclick = () => {
-
-    document.body.classList.toggle("dark");
-
-    if(document.body.classList.contains("dark")){
-
-        localStorage.setItem("theme","dark");
-
-        themeBtn.textContent = "☀️";
-
-    }else{
-
-        localStorage.setItem("theme","light");
-
-        themeBtn.textContent = "🌙";
-
-    }
-
-};
-
-// ======================
-// НАПИШИ ПЕРЕВОД
-// ======================
-let randomIndex = 0;
-let writeWords = [];
-startWriteBtn.onclick = function () {
-    
-    writeRunning = true;
-const reviewWords = currentWords.filter(word =>
-    !word.nextReview || word.nextReview <= Date.now()
-);
-   if(reviewWords.length === 0){
-
-    cardFrontText.textContent = "🎉 Сегодня всё повторено!";
-    cardBackText.textContent = "";
-    cardImage.style.display = "none";
-    cardCounter.textContent = "0 / 0";
-
-    return;
-
-}
-   writeWords = [];
-
-if(writeSet.value === "all"){
-    writeWords = [...reviewWords];
-}else{
-    writeWords = [...sets[writeSet.value].words];
-}
-
-if(writeWords.length === 0){
-
-    alert("В этом наборе нет слов!");
-
-    return;
-
-}
-
-randomIndex =
-Math.floor(Math.random()*writeWords.length);
-
-const randomWord =
-writeWords[randomIndex];
-    writeWord.textContent = randomWord.english;
-
-    writeCorrect = randomWord.russian.toLowerCase();
-
-    writeAnswer.value = "";
-
-    writeResult.textContent = "";
-
-    writeAnswer.focus();
-
-};
-
-checkAnswerBtn.onclick = function () {
-
-    if(writeCorrect === "") return;
-
-    const answer =
-        writeAnswer.value.trim().toLowerCase();
-
-    if(answer === writeCorrect){
-
-        writeResult.textContent = "✅ Правильно!";
-        writeWords.splice(randomIndex,1);
-
-      setTimeout(() => {
-
-    if(!writeRunning) return;
-
-    if(writeWords.length === 0){
-
-        writeWord.textContent = "🏆 Игра окончена!";
-
-        writeAnswer.value = "";
-
-        writeResult.textContent = "";
-
-        writeRunning = false;
-
-        writeWords = [];
-
-        return;
-
-    }
-
-    startWriteBtn.click();
-
-},1000);
-
-    }else{
-
-        writeResult.textContent =
-        "❌ Правильный ответ: " + writeCorrect;
-
-    }
-
-};
-exitWriteBtn.onclick = function () {
-
-    writeRunning = false;
-
-    writeCorrect = "";
-
-    writeWord.textContent = "Нажми «Начать»";
-
-    writeAnswer.value = "";
-
-    writeResult.textContent = "";
-
-};
-
-// ======================
-// ИГРА "СОБЕРИ СЛОВО"
-// ======================
-const lettersBox = document.getElementById("letters");
-const scrambleTranslate = document.getElementById("scrambleTranslate");
-const scrambleAnswer = document.getElementById("scrambleAnswer");
-const checkWordBtn = document.getElementById("checkWordBtn");
-const newWordBtn = document.getElementById("newWordBtn");
-const scrambleResult = document.getElementById("scrambleResult");
-
-
-let currentScrambleWord = "";
-let userWord = "";
-
-
-function startScramble(){
-
-   let sourceWords = words;
-
-if(scrambleSet.value !== "all"){
-
-    sourceWords = sets[scrambleSet.value].words;
-
-}
-
-if(sourceWords.length === 0){
-
-    alert("В этом наборе нет слов!");
-    return;
-
-}
-
-const random =
-sourceWords[Math.floor(Math.random()*sourceWords.length)];
-
-
-    currentScrambleWord = random.english.toLowerCase();
-
-    scrambleTranslate.textContent =
-    "Перевод: " + random.russian;
-
-
-    userWord = "";
-
-    scrambleAnswer.textContent = "";
-
-
-    let letters =
-    currentScrambleWord.split("");
-
-
-do{
-
-    letters.sort(() => Math.random() - 0.5);
-
-}while(
-    letters.join("") === currentScrambleWord
-);
-
-
-    lettersBox.innerHTML = "";
-
-
-    letters.forEach(letter=>{
-
-        let btn = document.createElement("button");
-
-        btn.textContent = letter;
-
-        btn.className="letterBtn";
-
-
-        btn.onclick=()=>{
-
-            userWord += letter;
-
-            scrambleAnswer.textContent =
-            userWord;
-
-            btn.disabled=true;
-
-        };
-
-
-        lettersBox.appendChild(btn);
-
-    });
-
-
-    scrambleResult.textContent="";
-
-}
-newWordBtn.onclick = () => {
-    startScramble();
-};
-
-
-
-
-checkWordBtn.onclick = ()=>{
-
-
-    if(userWord === currentScrambleWord){
-
-        scrambleResult.textContent = "🎉 Правильно!";
-
-setTimeout(() => {
-
-
-
-},1000);
-
-    }else{
-
-       scrambleResult.textContent =
-"❌ Правильное слово: " + currentScrambleWord;
-
-setTimeout(() => {
-
-
-
-},1500);
-
-    }
-
-};
-// ======================
-// ИНТЕРВАЛЬНЫЕ ПОВТОРЕНИЯ
-// ======================
-
-function markCorrect(index){
-
-    words[index].correct++;
-
-    if(words[index].level < 5){
-        words[index].level++;
-    }
-
-    let days = 0;
-
-    switch(words[index].level){
-
-        case 0:
-            days = 0;
-            break;
-
-        case 1:
-            days = 1;
-            break;
-
-        case 2:
-            days = 3;
-            break;
-
-        case 3:
-            days = 7;
-            break;
-
-        case 4:
-            days = 14;
-            break;
-
-        case 5:
-            days = 30;
-            break;
-    }
-
-    words[index].nextReview =
-        Date.now() + days * 24 * 60 * 60 * 1000;
-
-    localStorage.setItem("words", JSON.stringify(words));
-}
-
-function markWrong(index){
-
-    words[index].wrong++;
-
-    words[index].level = 0;
-
-    words[index].nextReview = Date.now();
-
-    localStorage.setItem("words", JSON.stringify(words));
-}
-
-knowBtn.onclick = () => {
-
-    const reviewWords = currentWords.filter(word =>
-        !word.nextReview || word.nextReview <= Date.now()
-    );
-
-    if(reviewWords.length === 0) return;
-
-    const word = reviewWords[currentCard];
-
-    const index = words.findIndex(w =>
-        w.english === word.english &&
-        w.russian === word.russian
-    );
-
-    if(index === -1) return;
-
-    markCorrect(index);
-
-    addXP(5);
-
-    if(currentCard >= reviewWords.length - 1){
-        currentCard = 0;
-    }
-
-    updateCard();
-
-};
-
-dontKnowBtn.onclick = () => {
-
-    const reviewWords = currentWords.filter(word =>
-        !word.nextReview || word.nextReview <= Date.now()
-    );
-
-    if(reviewWords.length === 0) return;
-
-    const word = reviewWords[currentCard];
-
-    const index = words.findIndex(w =>
-        w.english === word.english &&
-        w.russian === word.russian
-    );
-
-    if(index === -1) return;
-
-    markWrong(index);
-
-    currentCard = 0;
-
-    updateCard();
-
-};
-document.getElementById("playGuess").onclick = () => {
-
-    hideAll();
-
-    guessGame.style.display = "block";
-
-};
-
-document.getElementById("playWrite").onclick = () => {
-
-    hideAll();
-
-    writeGame.style.display = "block";
-
-};
-
-document.getElementById("playScramble").onclick = () => {
-
-    hideAll();
-
-    scrambleGame.style.display = "block";
-
-};
-
-document.getElementById("playExam").onclick = () => {
-
-    hideAll();
-
-    examGame.style.display = "block";
-
-};
-
-
-console.log(guessGame);
-console.log(writeGame);
-console.log(scrambleGame);
-
-
-const examWord = document.getElementById("examWord");
-const examAnswers = document.getElementById("examAnswers");
-const examCounter = document.getElementById("examCounter");
-const examResult = document.getElementById("examResult");
-
-const startExamBtn = document.getElementById("startExamBtn");
-const exitExamBtn = document.getElementById("exitExamBtn");
-
-
-document.getElementById("playExam").onclick = () => {
-
-    hideAll();
-
-    examGame.style.display = "block";
-};
-document.getElementById("playListen").onclick = () => {
-
-    hideAll();
-
-    listenGame.style.display = "block";
-
-};
-
-startExamBtn.onclick = () => {
-
-    if(words.length < 4){
-
-        alert("Добавьте минимум 4 слова.");
-
-        return;
-    }
-
-    examWords = [...words]
-        .sort(() => Math.random() - 0.5)
-        .slice(0,20);
-
-    examQuestion = 0;
-    examCorrect = 0;
-
-    nextExamQuestion();
-};
-
-function nextExamQuestion(){
-
-    if(examQuestion >= examWords.length){
-
-        examWord.textContent =
-        "🏆 Экзамен окончен";
-
-        examAnswers.innerHTML = "";
-
-        examResult.textContent =
-        "Правильно: " +
-        examCorrect +
-        " из " +
-        examWords.length;
-
-if(examCorrect === examWords.length){
-    addXP(100); // идеальный экзамен
-}else{
-    addXP(examCorrect * 5); // по 5 XP за каждый правильный ответ
-}
-       
-        return;
-    
-    }
-
-    examCounter.textContent =
-    "Вопрос " +
-    (examQuestion+1) +
-    " / " +
-    examWords.length;
-
-    const word = examWords[examQuestion];
-
-    examWord.textContent = word.english;
-
-    let variants = [word.russian];
-
-    while(variants.length < 4){
-
-        const random =
-        words[Math.floor(Math.random()*words.length)].russian;
-
-        if(!variants.includes(random))
-            variants.push(random);
-    }
-
-    variants.sort(()=>Math.random()-0.5);
-
-    examAnswers.innerHTML = "";
-
-    variants.forEach(answer=>{
-
-        const btn = document.createElement("button");
-
-        btn.className = "answerBtn";
-
-        btn.textContent = answer;
-
-        btn.onclick = ()=>{
-
-            if(answer === word.russian){
-
-                examCorrect++;
-
-                btn.classList.add("correct");
-
-            }else{
-
-                btn.classList.add("wrong");
-
-            }
-
-            setTimeout(()=>{
-
-                examQuestion++;
-
-                nextExamQuestion();
-
-            },800);
-
-        };
-
-        examAnswers.appendChild(btn);
-
-    });
-
-}
-
-exitExamBtn.onclick = ()=>{
-
-    hideAll();
-
-    games.style.display = "block";
-
-};
-
-exitWriteBtn.onclick = () => {
-
-    hideAll();
-
-    games.style.display = "block";
-
-};
-
-
-newWordBtn.onclick = () => {
-    startScramble();
-};
-exitScrambleBtn.onclick = () => {
-
-    hideAll();
-
-    games.style.display = "block";
-
-};
-
-document.getElementById("guessGame").style.display = "none";
-document.getElementById("writeGame").style.display = "none";
-document.getElementById("scrambleGame").style.display = "none";
-
-const exam = document.getElementById("examGame");
-if (exam) exam.style.display = "none";
-
-flashcard.animate(
-
-[
-    {
-        opacity:0,
-        transform:"scale(.95)"
-    },
-
-    {
-        opacity:1,
-        transform:"scale(1)"
-    }
-
-],
-
-{
-    duration:250
-}
-
-);
-flashcard.animate(
-
-[
-    {
-        opacity:0,
-        transform:"scale(.95)"
-    },
-
-    {
-        opacity:1,
-        transform:"scale(1)"
-    }
-
-],
-
-{
-    duration:250
-}
-
-);
-// ======================
-// DAILY QUESTS
-// ======================
-
-const dailyQuestsBox =
-document.getElementById("dailyQuests");
-
-let today =
-new Date().toLocaleDateString();
-
-let savedDate =
-localStorage.getItem("dailyDate");
-
-let quests =
-JSON.parse(localStorage.getItem("dailyQuests")) || [];
-
-if(savedDate !== today){
-
-quests=[
-
-{
-text:"Добавить 5 слов",
-goal:5,
-progress:0,
-reward:20
-},
-
-{
-text:"Изучить 10 карточек",
-goal:10,
-progress:0,
-reward:30
-},
-
-{
-text:"Получить 50 XP",
-goal:50,
-progress:0,
-reward:40
-}
-
-];
-
-localStorage.setItem(
-"dailyDate",
-today
-);
-
-localStorage.setItem(
-"dailyQuests",
-JSON.stringify(quests)
+background:linear-gradient(
+90deg,
+#22c55e,
+#3b82f6,
+#8b5cf6
 );
 
 }
+.gamesTitle{
+    text-align:center;
+    font-size:42px;
+    margin-bottom:8px;
+}
 
-function updateDailyQuests(){
+.gamesSubtitle{
+    text-align:center;
+    color:#888;
+    margin-bottom:35px;
+}
 
-dailyQuestsBox.innerHTML="";
+.gamesGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:25px;
+}
 
-quests.forEach((q,index)=>{
+.gameCard{
+    background:white;
+    border-radius:22px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+    transition:.3s;
+    cursor:pointer;
+}
 
-let done=q.progress>=q.goal;
+.dark .gameCard{
+    background:#232323;
+}
 
-dailyQuestsBox.innerHTML+=`
+.gameCard:hover{
+    transform:translateY(-8px);
+}
 
-<div class="quest">
+.gameIcon{
+    font-size:55px;
+    margin-bottom:15px;
+}
 
-<h3>${done?"✅":"🎯"} ${q.text}</h3>
+.gameCard h2{
+    margin-bottom:12px;
+}
 
-<div class="progressBar">
+.gameCard p{
+    color:#777;
+    min-height:45px;
+}
 
-<div class="progressFill"
+.playBtn{
+    display:inline-block;
+    margin-top:20px;
+    background:#4CAF50;
+    color:white;
+    padding:12px 30px;
+    border-radius:12px;
+    font-weight:bold;
+}
 
-style="width:${
-(q.progress/q.goal)*100
-}%">
+.dark .playBtn{
+    background:#66bb6a;
+}
+.flashcard{
 
-</div>
+    width:420px;
+    height:280px;
 
-</div>
+    margin:40px auto;
 
-<p>
+    perspective:1200px;
 
-${q.progress} / ${q.goal}
+    cursor:pointer;
 
-</p>
-
-<p>
-
-🎁 ${q.reward} XP
-
-</p>
-
-</div>
-
-`;
-
-});
-
-localStorage.setItem(
-"dailyQuests",
-JSON.stringify(quests)
-);
+    transition:.3s;
 
 }
 
-updateDailyQuests();
-// ======================
-// ИГРА "НАПИШИ УСЛЫШАННОЕ"
-// ======================
+.flashcard:hover{
 
-function startListenGame(){
-
-    let sourceWords = words;
-
-if(listenSet.value !== "all"){
-
-    sourceWords = sets[listenSet.value].words;
+    transform:translateY(-8px) scale(1.03);
 
 }
 
-if(sourceWords.length === 0){
+.cardInner{
 
-    alert("В этом наборе нет слов!");
+    width:100%;
+    height:100%;
 
-    return;
+    position:relative;
 
-}
+    transition:transform .7s cubic-bezier(.2,.8,.2,1);
 
-currentListenWord =
-sourceWords[Math.floor(Math.random()*sourceWords.length)];
-
-    listenAnswer.value = "";
-
-    listenResult.textContent = "";
-
-    listenWord.textContent = "🔊 Слушай слово";
-
-    speakListenWord();
-}
-
-function speakListenWord(){
-
-    if(!currentListenWord) return;
-
-    const speech =
-    new SpeechSynthesisUtterance(
-        currentListenWord.english
-    );
-
-    speech.lang = "en-US";
-    speech.rate = 0.85;
-    speech.pitch = 1;
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(speech);
+    transform-style:preserve-3d;
 
 }
 
-startListenBtn.onclick = ()=>{
+.cardInner.flip{
 
-    startListenGame();
+    transform:rotateY(180deg);
 
-};
+}
 
-playSoundBtn.onclick = ()=>{
+.cardFront,
+.cardBack{
 
-    speakListenWord();
+    position:absolute;
 
-};
+    width:100%;
+    height:100%;
 
-checkListenBtn.onclick = ()=>{
+    border-radius:25px;
 
-    if(!currentListenWord) return;
+    backface-visibility:hidden;
 
-    const answer =
-    listenAnswer.value
-    .trim()
-    .toLowerCase();
+    display:flex;
 
-    if(answer === currentListenWord.english.toLowerCase()){
+    flex-direction:column;
 
-        listenResult.textContent =
-        "✅ Правильно!";
+    justify-content:center;
 
-        addXP(10);
+    align-items:center;
 
-    }else{
+    padding:20px;
 
-        listenResult.textContent =
-        "❌ Правильный ответ: " +
-        currentListenWord.english;
+    box-shadow:0 15px 40px rgba(0,0,0,.18);
+
+}
+
+.cardFront{
+
+    background:linear-gradient(135deg,#4f8cff,#6da8ff);
+
+    color:white;
+
+}
+
+.cardBack{
+
+    background:white;
+
+    color:#222;
+
+    transform:rotateY(180deg);
+
+}
+#cardFrontText,
+#cardBackText{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    text-align:center;
+
+    transition:.3s;
+
+}
+#cardImage{
+
+    width:130px;
+
+    height:130px;
+
+    object-fit:cover;
+
+    border-radius:18px;
+
+    margin-bottom:20px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.2);
+
+}
+.studyButtons{
+
+    display:flex;
+
+    gap:15px;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+    margin-top:30px;
+
+}
+
+.studyButtons button{
+
+    padding:14px 26px;
+
+    border:none;
+
+    border-radius:15px;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.studyButtons button:hover{
+
+    transform:translateY(-4px);
+
+}
+
+.studyButtons button:active{
+
+    transform:scale(.94);
+
+}
+@keyframes cardAppear{
+
+    from{
+
+        opacity:0;
+        transform:scale(.9);
 
     }
 
-};
+    to{
 
-nextListenBtn.onclick = ()=>{
+        opacity:1;
+        transform:scale(1);
 
-    startListenGame();
-
-};
-
-exitListenBtn.onclick = ()=>{
-
-    hideAll();
-
-    games.style.display = "block";
-
-};
-// ==============================
-// ЭССЕ И ПИСЬМА
-// ==============================
-
-let essays = JSON.parse(
-    localStorage.getItem("essays")
-) || [];
-
-let currentEssayIndex = -1;
-
-
-// Элементы
-
-const essayTab =
-    document.getElementById("essayTab");
-
-const essaysSection =
-    document.getElementById("essays");
-
-const essayList =
-    document.getElementById("essayList");
-
-const newEssayBtn =
-    document.getElementById("newEssayBtn");
-
-const essayEditor =
-    document.getElementById("essayEditor");
-
-const essayTitle =
-    document.getElementById("essayTitle");
-
-const essayType =
-    document.getElementById("essayType");
-
-const essayText =
-    document.getElementById("essayText");
-
-const saveEssayBtn =
-    document.getElementById("saveEssayBtn");
-
-const copyEssayBtn =
-    document.getElementById("copyEssayBtn");
-
-const cancelEssayBtn =
-    document.getElementById("cancelEssayBtn");
-
-
-// ==============================
-// ОТКРЫТЬ ВКЛАДКУ
-// ==============================
-
-essayTab.onclick = () => {
-
-    hideAll();
-
-    essaysSection.style.display = "block";
-
-    showEssays();
-
-};
-
-
-// ==============================
-// ПОКАЗАТЬ СПИСОК
-// ==============================
-
-function showEssays() {
-
-    if (essays.length === 0) {
-
-        essayList.innerHTML = `
-            <p>
-                Пока нет сохранённых работ.
-            </p>
-        `;
-
-        return;
     }
 
+}
 
-    essayList.innerHTML = "";
+.flashcard{
+
+    animation:cardAppear .35s ease;
+
+}
+
+.achievements{
+    width:100%;
+}
+
+#achievementList{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:15px;
+    margin-top:20px;
+}
+
+.badge{
+    background:#ffffff;
+    border-radius:20px;
+    padding:20px;
+    text-align:center;
+    transition:.3s;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+    border:3px solid transparent;
+}
+
+body.dark .badge{
+    background:#232323;
+}
+
+.badge:hover{
+    transform:translateY(-6px) scale(1.03);
+}
+
+.badge.locked{
+    opacity:.35;
+    filter:grayscale(100%);
+}
+
+.badge.unlocked{
+    border-color:#FFD54A;
+    animation:badgePop .5s;
+}
+
+.badgeIcon{
+    font-size:45px;
+    margin-bottom:10px;
+}
+
+.badgeTitle{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.badgeDesc{
+    font-size:13px;
+    margin-top:6px;
+    opacity:.8;
+}
+
+@keyframes badgePop{
+
+0%{
+transform:scale(.7);
+}
+
+70%{
+transform:scale(1.1);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+.badgeProgress{
+
+height:8px;
+
+background:#ddd;
+
+border-radius:20px;
+
+overflow:hidden;
+
+margin-top:10px;
+
+}
+
+.badgeFill{
+
+height:100%;
+
+background:linear-gradient(90deg,#4CAF50,#00E676);
+
+transition:.3s;
+
+}
+
+.badgeCounter{
+
+margin-top:6px;
+
+font-size:13px;
+
+opacity:.8;
+
+}
+.quest{
+    background:#2f2f2f;
+    border-radius:15px;
+    padding:18px;
+    margin:15px 0;
+}
+
+.questTitle{
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:8px;
+}
+
+.questProgress{
+    color:#ccc;
+    margin-bottom:10px;
+}
+
+.questBar{
+    height:10px;
+    background:#444;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.questFill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#3b82f6,#22c55e);
+    transition:.4s;
+}
+
+.questDone{
+
+    color:#5cff8d;
+    font-weight:bold;
+    margin-top:10px;
+
+}
+/* ===================================== */
+/* 📱 МОБИЛЬНАЯ ВЕРСИЯ */
+/* ===================================== */
+
+@media (max-width: 900px){
+
+.container{
+    width:95%;
+    padding:15px;
+}
+
+header h1{
+    font-size:34px;
+}
+
+header p{
+    font-size:18px;
+}
+
+.menu{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.menu button{
+    width:100%;
+    font-size:17px;
+}
+
+.gamesGrid{
+    grid-template-columns:1fr;
+}
+
+.statsGrid{
+    grid-template-columns:1fr;
+}
+
+.studyButtons{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.studyButtons button{
+    width:100%;
+}
+
+.flashcard{
+    width:100%;
+    height:260px;
+}
+
+.cardFrontText,
+.cardBackText{
+    font-size:34px;
+}
+
+.card img{
+    max-width:100%;
+    height:auto;
+}
+
+input,
+textarea,
+select,
+button{
+    width:100%;
+    box-sizing:border-box;
+}
+
+.word{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.word button{
+    width:100%;
+}
+
+.setButtons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+.setButtons button{
+    width:100%;
+}
+
+.progressBar{
+    width:100%;
+}
+
+}
+@media (max-width:500px){
+
+header h1{
+    font-size:28px;
+}
+
+header p{
+    font-size:16px;
+}
+
+.flashcard{
+    height:220px;
+}
+
+.cardFrontText,
+.cardBackText{
+    font-size:28px;
+}
+
+.gamesTitle{
+    font-size:36px;
+}
+
+.gamesSubtitle{
+    font-size:16px;
+}
+
+.gameCard{
+    padding:20px;
+}
+
+.gameIcon{
+    font-size:48px;
+}
+
+}
+/* ========================= */
+/* ЭССЕ И ПИСЬМА */
+/* ========================= */
+
+.essayHeader {
+    text-align: center;
+}
+
+.essayHeader p {
+    opacity: 0.8;
+}
 
 
-    essays.forEach((essay, index) => {
+#essayTitle,
+#essayType,
+#essayText {
 
-        let typeIcon = "📝";
+    width: 100%;
 
-        if (essay.type === "letter") {
-            typeIcon = "✉️";
-        }
+    box-sizing: border-box;
 
-        if (essay.type === "article") {
-            typeIcon = "📰";
-        }
-
-        if (essay.type === "other") {
-            typeIcon = "📄";
-        }
-
-
-        essayList.innerHTML += `
-
-            <div class="essayItem">
-
-                <div class="essayInfo">
-
-                    <h3>
-                        ${typeIcon}
-                        ${escapeEssayHTML(essay.title)}
-                    </h3>
-
-                    <p>
-                        ${escapeEssayHTML(
-                            essay.text.substring(0, 120)
-                        )}
-                        ${essay.text.length > 120 ? "..." : ""}
-                    </p>
-
-                </div>
-
-
-                <div class="essayActions">
-
-                    <button
-                        onclick="editEssay(${index})"
-                    >
-                        ✏️
-                    </button>
-
-                    <button
-                        onclick="copySavedEssay(${index})"
-                    >
-                        📋
-                    </button>
-
-                    <button
-                        onclick="deleteEssay(${index})"
-                    >
-                        🗑
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-    });
+    margin-bottom: 15px;
 
 }
 
 
-// ==============================
-// НОВАЯ РАБОТА
-// ==============================
+#essayTitle {
 
-newEssayBtn.onclick = () => {
+    padding: 14px;
 
-    currentEssayIndex = -1;
+    border-radius: 10px;
 
-    essayTitle.value = "";
+    border: 1px solid #ccc;
 
-    essayType.value = "essay";
-
-    essayText.value = "";
-
-    essayEditor.style.display = "block";
-
-    essayTitle.focus();
-
-};
-
-
-// ==============================
-// СОХРАНИТЬ
-// ==============================
-
-saveEssayBtn.onclick = () => {
-
-    const title =
-        essayTitle.value.trim();
-
-    const text =
-        essayText.value.trim();
-
-    const type =
-        essayType.value;
-
-
-    if (title === "") {
-
-        alert("Введите название работы!");
-
-        return;
-
-    }
-
-
-    if (text === "") {
-
-        alert("Напишите текст работы!");
-
-        return;
-
-    }
-
-
-    const essay = {
-
-        title: title,
-
-        type: type,
-
-        text: text,
-
-        date: Date.now()
-
-    };
-
-
-    // Новая работа
-
-    if (currentEssayIndex === -1) {
-
-        essays.push(essay);
-
-    }
-
-    // Редактирование
-
-    else {
-
-        essays[currentEssayIndex] = essay;
-
-    }
-
-
-    localStorage.setItem(
-        "essays",
-        JSON.stringify(essays)
-    );
-
-
-    essayEditor.style.display = "none";
-
-    currentEssayIndex = -1;
-
-    showEssays();
-
-};
-
-
-// ==============================
-// РЕДАКТИРОВАНИЕ
-// ==============================
-
-window.editEssay = function(index) {
-
-    const essay =
-        essays[index];
-
-    currentEssayIndex = index;
-
-
-    essayTitle.value =
-        essay.title;
-
-    essayType.value =
-        essay.type;
-
-    essayText.value =
-        essay.text;
-
-
-    essayEditor.style.display =
-        "block";
-
-
-    essayTitle.focus();
-
-};
-
-
-// ==============================
-// УДАЛЕНИЕ
-// ==============================
-
-window.deleteEssay = function(index) {
-
-    if (
-        !confirm(
-            "Удалить эту работу?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    essays.splice(index, 1);
-
-
-    localStorage.setItem(
-        "essays",
-        JSON.stringify(essays)
-    );
-
-
-    showEssays();
-
-};
-
-
-// ==============================
-// КОПИРОВАНИЕ ИЗ СПИСКА
-// ==============================
-
-window.copySavedEssay = async function(index) {
-
-    const essay =
-        essays[index];
-
-
-    try {
-
-        await navigator.clipboard.writeText(
-            essay.text
-        );
-
-        alert("📋 Текст скопирован!");
-
-    }
-
-    catch (error) {
-
-        alert(
-            "Не удалось скопировать текст."
-        );
-
-    }
-
-};
-
-
-// ==============================
-// КНОПКА КОПИРОВАТЬ В РЕДАКТОРЕ
-// ==============================
-
-copyEssayBtn.onclick = async () => {
-
-    const text =
-        essayText.value;
-
-
-    if (text.trim() === "") {
-
-        alert("Нет текста для копирования!");
-
-        return;
-
-    }
-
-
-    try {
-
-        await navigator.clipboard.writeText(text);
-
-        alert("📋 Текст скопирован!");
-
-    }
-
-    catch (error) {
-
-        essayText.select();
-
-        document.execCommand("copy");
-
-        alert("📋 Текст скопирован!");
-
-    }
-
-};
-
-
-// ==============================
-// ОТМЕНА
-// ==============================
-
-cancelEssayBtn.onclick = () => {
-
-    essayEditor.style.display = "none";
-
-    currentEssayIndex = -1;
-
-};
-
-
-// ==============================
-// ЗАЩИТА HTML
-// ==============================
-
-function escapeEssayHTML(text) {
-
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    font-size: 17px;
 
 }
-// Проверка вкладки Эссе
-essayTab.addEventListener("click", function () {
 
-    console.log("Вкладка Эссе нажата");
 
-    hideAll();
+#essayType {
 
-    essaysSection.style.display = "block";
+    padding: 14px;
 
-    showEssays();
+    border-radius: 10px;
 
-});
+    border: 1px solid #ccc;
+
+    font-size: 16px;
+
+}
+
+
+#essayText {
+
+    min-height: 350px;
+
+    resize: vertical;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    border: 1px solid #ccc;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    font-family: inherit;
+
+}
+
+
+.essayButtons {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.essayButtons button {
+
+    flex: 1;
+
+    min-width: 130px;
+
+}
+
+
+.essayItem {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+
+    border-radius: 14px;
+
+    background: rgba(128,128,128,0.12);
+
+}
+
+
+.essayInfo {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.essayInfo h3 {
+
+    margin-top: 0;
+
+}
+
+
+.essayInfo p {
+
+    opacity: 0.75;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+.essayActions {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+
+.essayActions button {
+
+    min-width: 45px;
+
+    padding: 10px;
+
+}
+
+
+/* МОБИЛЬНАЯ ВЕРСИЯ */
+
+@media (max-width: 600px) {
+
+    .essayItem {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .essayActions {
+
+        width: 100%;
+
+    }
+
+
+    .essayActions button {
+
+        flex: 1;
+
+    }
+
+
+    .essayButtons {
+
+        flex-direction: column;
+
+    }
+
+
+    .essayButtons button {
+
+        width: 100%;
+
+    }
+
+
+    #essayText {
+
+        min-height: 280px;
+
+    }
+
+}
+/* Исправление клика по вкладке Эссе на ПК */
+
+.menu {
+    position: relative;
+    z-index: 1000;
+}
+
+.menu button {
+    position: relative;
+    z-index: 1001;
+    pointer-events: auto;
+}
+
+#essayTab {
+    position: relative;
+    z-index: 1002;
+    pointer-events: auto;
+    cursor: pointer;
+}
+.essayWordCounter {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(100, 100, 100, 0.1);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
