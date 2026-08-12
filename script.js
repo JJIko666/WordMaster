@@ -2285,3 +2285,415 @@ exitListenBtn.onclick = ()=>{
     games.style.display = "block";
 
 };
+// ==============================
+// ЭССЕ И ПИСЬМА
+// ==============================
+
+let essays = JSON.parse(
+    localStorage.getItem("essays")
+) || [];
+
+let currentEssayIndex = -1;
+
+
+// Элементы
+
+const essayTab =
+    document.getElementById("essayTab");
+
+const essaysSection =
+    document.getElementById("essays");
+
+const essayList =
+    document.getElementById("essayList");
+
+const newEssayBtn =
+    document.getElementById("newEssayBtn");
+
+const essayEditor =
+    document.getElementById("essayEditor");
+
+const essayTitle =
+    document.getElementById("essayTitle");
+
+const essayType =
+    document.getElementById("essayType");
+
+const essayText =
+    document.getElementById("essayText");
+
+const saveEssayBtn =
+    document.getElementById("saveEssayBtn");
+
+const copyEssayBtn =
+    document.getElementById("copyEssayBtn");
+
+const cancelEssayBtn =
+    document.getElementById("cancelEssayBtn");
+
+
+// ==============================
+// ОТКРЫТЬ ВКЛАДКУ
+// ==============================
+
+essayTab.onclick = () => {
+
+    hideAll();
+
+    essaysSection.style.display = "block";
+
+    showEssays();
+
+};
+
+
+// ==============================
+// ПОКАЗАТЬ СПИСОК
+// ==============================
+
+function showEssays() {
+
+    if (essays.length === 0) {
+
+        essayList.innerHTML = `
+            <p>
+                Пока нет сохранённых работ.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    essayList.innerHTML = "";
+
+
+    essays.forEach((essay, index) => {
+
+        let typeIcon = "📝";
+
+        if (essay.type === "letter") {
+            typeIcon = "✉️";
+        }
+
+        if (essay.type === "article") {
+            typeIcon = "📰";
+        }
+
+        if (essay.type === "other") {
+            typeIcon = "📄";
+        }
+
+
+        essayList.innerHTML += `
+
+            <div class="essayItem">
+
+                <div class="essayInfo">
+
+                    <h3>
+                        ${typeIcon}
+                        ${escapeEssayHTML(essay.title)}
+                    </h3>
+
+                    <p>
+                        ${escapeEssayHTML(
+                            essay.text.substring(0, 120)
+                        )}
+                        ${essay.text.length > 120 ? "..." : ""}
+                    </p>
+
+                </div>
+
+
+                <div class="essayActions">
+
+                    <button
+                        onclick="editEssay(${index})"
+                    >
+                        ✏️
+                    </button>
+
+                    <button
+                        onclick="copySavedEssay(${index})"
+                    >
+                        📋
+                    </button>
+
+                    <button
+                        onclick="deleteEssay(${index})"
+                    >
+                        🗑
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+// ==============================
+// НОВАЯ РАБОТА
+// ==============================
+
+newEssayBtn.onclick = () => {
+
+    currentEssayIndex = -1;
+
+    essayTitle.value = "";
+
+    essayType.value = "essay";
+
+    essayText.value = "";
+
+    essayEditor.style.display = "block";
+
+    essayTitle.focus();
+
+};
+
+
+// ==============================
+// СОХРАНИТЬ
+// ==============================
+
+saveEssayBtn.onclick = () => {
+
+    const title =
+        essayTitle.value.trim();
+
+    const text =
+        essayText.value.trim();
+
+    const type =
+        essayType.value;
+
+
+    if (title === "") {
+
+        alert("Введите название работы!");
+
+        return;
+
+    }
+
+
+    if (text === "") {
+
+        alert("Напишите текст работы!");
+
+        return;
+
+    }
+
+
+    const essay = {
+
+        title: title,
+
+        type: type,
+
+        text: text,
+
+        date: Date.now()
+
+    };
+
+
+    // Новая работа
+
+    if (currentEssayIndex === -1) {
+
+        essays.push(essay);
+
+    }
+
+    // Редактирование
+
+    else {
+
+        essays[currentEssayIndex] = essay;
+
+    }
+
+
+    localStorage.setItem(
+        "essays",
+        JSON.stringify(essays)
+    );
+
+
+    essayEditor.style.display = "none";
+
+    currentEssayIndex = -1;
+
+    showEssays();
+
+};
+
+
+// ==============================
+// РЕДАКТИРОВАНИЕ
+// ==============================
+
+window.editEssay = function(index) {
+
+    const essay =
+        essays[index];
+
+    currentEssayIndex = index;
+
+
+    essayTitle.value =
+        essay.title;
+
+    essayType.value =
+        essay.type;
+
+    essayText.value =
+        essay.text;
+
+
+    essayEditor.style.display =
+        "block";
+
+
+    essayTitle.focus();
+
+};
+
+
+// ==============================
+// УДАЛЕНИЕ
+// ==============================
+
+window.deleteEssay = function(index) {
+
+    if (
+        !confirm(
+            "Удалить эту работу?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    essays.splice(index, 1);
+
+
+    localStorage.setItem(
+        "essays",
+        JSON.stringify(essays)
+    );
+
+
+    showEssays();
+
+};
+
+
+// ==============================
+// КОПИРОВАНИЕ ИЗ СПИСКА
+// ==============================
+
+window.copySavedEssay = async function(index) {
+
+    const essay =
+        essays[index];
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            essay.text
+        );
+
+        alert("📋 Текст скопирован!");
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Не удалось скопировать текст."
+        );
+
+    }
+
+};
+
+
+// ==============================
+// КНОПКА КОПИРОВАТЬ В РЕДАКТОРЕ
+// ==============================
+
+copyEssayBtn.onclick = async () => {
+
+    const text =
+        essayText.value;
+
+
+    if (text.trim() === "") {
+
+        alert("Нет текста для копирования!");
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(text);
+
+        alert("📋 Текст скопирован!");
+
+    }
+
+    catch (error) {
+
+        essayText.select();
+
+        document.execCommand("copy");
+
+        alert("📋 Текст скопирован!");
+
+    }
+
+};
+
+
+// ==============================
+// ОТМЕНА
+// ==============================
+
+cancelEssayBtn.onclick = () => {
+
+    essayEditor.style.display = "none";
+
+    currentEssayIndex = -1;
+
+};
+
+
+// ==============================
+// ЗАЩИТА HTML
+// ==============================
+
+function escapeEssayHTML(text) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
