@@ -1371,7 +1371,39 @@ async function shareSet(index) {
 
     }
 }
+async function shareSet(index) {
 
+    const set = sets[index];
+
+    const data = JSON.stringify({
+        name: set.name,
+        words: set.words
+    });
+
+    const code =
+        "WM1:" +
+        btoa(unescape(encodeURIComponent(data)));
+
+    try {
+
+        await navigator.clipboard.writeText(code);
+
+        alert(
+            "📤 Код набора скопирован!\n\n" +
+            "Теперь открой WordMaster на телефоне и вставь этот код."
+        );
+
+    } catch (error) {
+
+        prompt(
+            "📤 Скопируй код набора:",
+            code
+        );
+
+    }
+}
+
+window.shareSet = shareSet;
 window.shareSet = shareSet;
 
 window.deleteSet = deleteSet;
