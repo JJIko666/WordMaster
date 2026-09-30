@@ -8,6 +8,8 @@ const bulkInput = document.getElementById("bulkInput");
 const importBtn = document.getElementById("importBtn");
 const setList = document.getElementById("setList");
 const newSetBtn = document.getElementById("newSetBtn");
+const importSetBtn = document.getElementById("importSetBtn");
+const importSetCode = document.getElementById("importSetCode");
 const createSet = document.getElementById("createSet");
 const viewSet = document.getElementById("viewSet");
 const viewSetTitle = document.getElementById("viewSetTitle");
@@ -1300,6 +1302,7 @@ newWords.push({
 
 };
 
+
 showSets();
 clearAll.onclick = () => {
 
@@ -1329,6 +1332,43 @@ updateCard();
 updateStats();
 
 };
+// ==============================
+// ПОДЕЛИТЬСЯ НАБОРОМ
+// ==============================
+
+async function shareSet(index) {
+
+    const set = sets[index];
+
+    const data = JSON.stringify({
+        name: set.name,
+        words: set.words
+    });
+
+    const code =
+        "WM1:" +
+        btoa(unescape(encodeURIComponent(data)));
+
+    try {
+
+        await navigator.clipboard.writeText(code);
+
+        alert(
+            "📤 Код набора скопирован!\n\n" +
+            "Теперь открой WordMaster на телефоне и вставь этот код."
+        );
+
+    } catch (error) {
+
+        prompt(
+            "📤 Скопируй код набора:",
+            code
+        );
+
+    }
+}
+
+window.shareSet = shareSet;
 
 window.deleteSet = deleteSet;
 window.openSet = openSet;
@@ -2728,3 +2768,82 @@ essayTab.addEventListener("click", function () {
     showEssays();
 
 });
+// ==============================
+// ИМПОРТ НАБОРА
+// ==============================
+
+importSetBtn.onclick = function () {
+
+    const code = importSetCode.value.trim();
+
+    if (!code) {
+        alert("❌ Вставь код набора.");
+        return;
+    }
+
+    try {
+
+        if (!code.startsWith("WM1:")) {
+            throw new Error("Неверный формат");
+        }
+
+        const base64 = code.substring(4);
+
+        const json = decodeURIComponent(
+            escape(atob(base64))
+        );
+
+        const imported = JSON.parse(json);
+
+        if (
+            !imported.name ||
+            !Array.isArray(imported.words)
+        ) {
+            throw new Error("Неверные данные");
+        }
+
+        let newName = imported.name;
+        let number = 2;
+
+        while (sets.some(set => set.name === newName)) {
+
+            newName = `${imported.name} (${number})`;
+
+            number++;
+        }
+
+        sets.push({
+
+            name: newName,
+
+            words: imported.words,
+
+            progress: 0,
+
+            currentCard: 0
+
+        });
+
+        localStorage.setItem(
+            "sets",
+            JSON.stringify(sets)
+        );
+
+        importSetCode.value = "";
+
+        showSets();
+
+        alert(
+            `✅ Набор "${newName}" успешно импортирован!`
+        );
+
+    } catch (error) {
+
+        alert(
+            "❌ Не удалось импортировать набор.\n\n" +
+            "Проверь, что ты вставил полный код."
+        );
+
+    }
+
+};
