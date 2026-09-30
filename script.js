@@ -1121,6 +1121,10 @@ function showSets() {
         ✏️
     </button>
 
+    <button onclick="shareSet(${index})">
+    📤
+</button>
+
     <button onclick="deleteSet(${index})">
         🗑
     </button>
