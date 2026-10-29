@@ -2361,7 +2361,7 @@ exitListenBtn.onclick = ()=>{
     games.style.display = "block";
 
 };
-// ==============================
+might you make automatically save for example when I am writing essay and every my words automatically saved you know if electric will turned off all that you wrote to disappeared therefore you are profesional IT specialist that genius and all problem or unexpected situation can guess in advance and you now should change this code // ==============================
 // ЭССЕ И ПИСЬМА
 // ==============================
 
@@ -2425,22 +2425,6 @@ const copyEssayBtn =
 
 const cancelEssayBtn =
     document.getElementById("cancelEssayBtn");
-
-
-// ==============================
-// ОТКРЫТЬ ВКЛАДКУ
-// ==============================
-
-essayTab.onclick = () => {
-
-    hideAll();
-
-    essaysSection.style.display = "block";
-
-    showEssays();
-
-};
-
 
 // ==============================
 // ПОКАЗАТЬ СПИСОК
