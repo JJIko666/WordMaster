@@ -238,6 +238,9 @@ function hideAll(){
     examGame.style.display = "none";
     listenGame.style.display = "none";
 
+    const essaysBlock = document.getElementById("essays");
+    if (essaysBlock) essaysBlock.style.display = "none";
+
 }
 
 homeTab.onclick = function () {
@@ -1403,7 +1406,7 @@ async function shareSet(index) {
     }
 }
 
-window.shareSet = shareSet;
+window.shareSet = shareSet; 
 window.shareSet = shareSet;
 
 window.deleteSet = deleteSet;
@@ -2361,15 +2364,47 @@ exitListenBtn.onclick = ()=>{
     games.style.display = "block";
 
 };
-might you make automatically save for example when I am writing essay and every my words automatically saved you know if electric will turned off all that you wrote to disappeared therefore you are profesional IT specialist that genius and all problem or unexpected situation can guess in advance and you now should change this code // ==============================
+// ==============================
 // ЭССЕ И ПИСЬМА
 // ==============================
 
-let essays = JSON.parse(
-    localStorage.getItem("essays")
-) || [];
+const ESSAYS_KEY = "essays";
+const ESSAY_DRAFT_KEY = "essayDraft";
+
+// Safe read: broken JSON no longer crashes the whole script
+function loadEssayJSON(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (error) {
+        console.error("Cannot read " + key, error);
+        return fallback;
+    }
+}
+
+// Safe write: returns true / false (storage can be full or blocked)
+function saveEssayJSON(key, value) {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+    } catch (error) {
+        console.error("Cannot save " + key, error);
+        return false;
+    }
+}
+
+let essays = loadEssayJSON(ESSAYS_KEY, []);
+
+if (!Array.isArray(essays)) {
+    essays = [];
+}
 
 let currentEssayIndex = -1;
+
+// Ask the browser not to delete our data when disk space is low
+if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist();
+}
 
 
 // Элементы
@@ -2425,6 +2460,161 @@ const copyEssayBtn =
 
 const cancelEssayBtn =
     document.getElementById("cancelEssayBtn");
+
+
+
+// ==============================
+// АВТОСОХРАНЕНИЕ ЧЕРНОВИКА
+// ==============================
+
+const essaySaveStatus =
+    document.getElementById("essaySaveStatus");
+
+let essayDraftTimer = null;
+
+// true = something was typed after the last Save / Cancel / open
+let essayUnsaved = false;
+
+// true = typed text is not yet written to the draft
+let essayDraftPending = false;
+
+function setEssaySaveStatus(message) {
+
+    if (essaySaveStatus) {
+        essaySaveStatus.textContent = message;
+    }
+
+}
+
+function saveEssayDraftNow() {
+
+    clearTimeout(essayDraftTimer);
+
+    const draft = {
+        index: currentEssayIndex,
+        title: essayTitle.value,
+        type: essayType.value,
+        text: essayText.value,
+        updatedAt: Date.now()
+    };
+
+    const ok = saveEssayJSON(ESSAY_DRAFT_KEY, draft);
+
+    essayDraftPending = !ok;
+
+    setEssaySaveStatus(
+        ok
+            ? "✅ Автосохранено " + new Date().toLocaleTimeString()
+            : "⚠ Не удалось сохранить! Нажми 📋 Копировать"
+    );
+
+}
+
+// Wait 400 ms after the last key, so we do not write on every letter
+function scheduleEssayDraftSave() {
+
+    essayUnsaved = true;
+    essayDraftPending = true;
+
+    setEssaySaveStatus("Сохранение...");
+
+    clearTimeout(essayDraftTimer);
+
+    essayDraftTimer = setTimeout(saveEssayDraftNow, 400);
+
+}
+
+function flushEssayDraft() {
+
+    if (essayDraftPending) {
+        saveEssayDraftNow();
+    }
+
+}
+
+function clearEssayDraft() {
+
+    clearTimeout(essayDraftTimer);
+
+    essayDraftPending = false;
+    essayUnsaved = false;
+
+    try {
+        localStorage.removeItem(ESSAY_DRAFT_KEY);
+    } catch (error) {}
+
+    setEssaySaveStatus("");
+
+}
+
+essayTitle.addEventListener("input", scheduleEssayDraftSave);
+essayText.addEventListener("input", scheduleEssayDraftSave);
+essayType.addEventListener("change", scheduleEssayDraftSave);
+
+// Save immediately when the tab is hidden, switched or closed
+document.addEventListener("visibilitychange", () => {
+
+    if (document.visibilityState === "hidden") {
+        flushEssayDraft();
+    }
+
+});
+
+window.addEventListener("pagehide", flushEssayDraft);
+window.addEventListener("beforeunload", flushEssayDraft);
+
+// Restore the draft when the page opens
+function restoreEssayDraft() {
+
+    const draft = loadEssayJSON(ESSAY_DRAFT_KEY, null);
+
+    if (!draft) return;
+
+    if (
+        (draft.title || "").trim() === "" &&
+        (draft.text || "").trim() === ""
+    ) {
+        return;
+    }
+
+    currentEssayIndex =
+        Number.isInteger(draft.index) && essays[draft.index]
+            ? draft.index
+            : -1;
+
+    essayTitle.value = draft.title || "";
+    essayType.value = draft.type || "essay";
+    essayText.value = draft.text || "";
+
+    updateEssayWordCount();
+
+    hideAll();
+
+    essaysSection.style.display = "block";
+    essayEditor.style.display = "block";
+
+    showEssays();
+
+    essayUnsaved = true;
+
+    setEssaySaveStatus("♻️ Черновик восстановлен");
+
+}
+
+// ==============================
+// ОТКРЫТЬ ВКЛАДКУ
+// ==============================
+
+essayTab.onclick = () => {
+
+    hideAll();
+
+    essaysSection.style.display = "block";
+
+    showEssays();
+
+};
+
 
 // ==============================
 // ПОКАЗАТЬ СПИСОК
@@ -2522,6 +2712,17 @@ function showEssays() {
 
 newEssayBtn.onclick = () => {
 
+    if (
+        essayUnsaved &&
+        !confirm(
+            "Есть несохранённые изменения. Начать новую работу? Черновик будет заменён."
+        )
+    ) {
+        return;
+    }
+
+    clearEssayDraft();
+
     currentEssayIndex = -1;
 
     essayTitle.value = "";
@@ -2531,6 +2732,8 @@ newEssayBtn.onclick = () => {
     essayText.value = "";
 
     essayEditor.style.display = "block";
+
+    updateEssayWordCount();
 
     essayTitle.focus();
 
@@ -2601,11 +2804,19 @@ saveEssayBtn.onclick = () => {
     }
 
 
-    localStorage.setItem(
-        "essays",
-        JSON.stringify(essays)
-    );
+    if (!saveEssayJSON(ESSAYS_KEY, essays)) {
 
+        alert(
+            "❌ Не удалось сохранить: память браузера переполнена.\n" +
+            "Текст остался в редакторе — скопируй его кнопкой 📋."
+        );
+
+        return;
+
+    }
+
+    // Real save worked, the safety draft is not needed any more
+    clearEssayDraft();
 
     essayEditor.style.display = "none";
 
@@ -2622,8 +2833,19 @@ saveEssayBtn.onclick = () => {
 
 window.editEssay = function(index) {
 
+    if (
+        essayUnsaved &&
+        !confirm(
+            "Есть несохранённые изменения. Открыть другую работу? Черновик будет заменён."
+        )
+    ) {
+        return;
+    }
+
     const essay =
         essays[index];
+
+    clearEssayDraft();
 
     currentEssayIndex = index;
 
@@ -2640,6 +2862,8 @@ window.editEssay = function(index) {
 
     essayEditor.style.display =
         "block";
+
+    updateEssayWordCount();
 
 
     essayTitle.focus();
@@ -2667,10 +2891,36 @@ window.deleteEssay = function(index) {
     essays.splice(index, 1);
 
 
-    localStorage.setItem(
-        "essays",
-        JSON.stringify(essays)
-    );
+    // The editor may be open for a work whose number just changed
+    if (essayEditor.style.display === "block") {
+
+        if (currentEssayIndex === index) {
+
+            // The work that was being edited is deleted
+            currentEssayIndex = -1;
+
+        }
+
+        else if (currentEssayIndex > index) {
+
+            currentEssayIndex--;
+
+        }
+
+        flushEssayDraft();
+
+        if (essayUnsaved) {
+            saveEssayDraftNow();
+        }
+
+    }
+
+
+    if (!saveEssayJSON(ESSAYS_KEY, essays)) {
+
+        alert("❌ Не удалось сохранить изменения.");
+
+    }
 
 
     showEssays();
@@ -2755,6 +3005,15 @@ copyEssayBtn.onclick = async () => {
 
 cancelEssayBtn.onclick = () => {
 
+    if (
+        essayUnsaved &&
+        !confirm("Отменить изменения? Написанный текст будет удалён.")
+    ) {
+        return;
+    }
+
+    clearEssayDraft();
+
     essayEditor.style.display = "none";
 
     currentEssayIndex = -1;
@@ -2776,18 +3035,9 @@ function escapeEssayHTML(text) {
         .replace(/'/g, "&#039;");
 
 }
-// Проверка вкладки Эссе
-essayTab.addEventListener("click", function () {
+// Restore an unsaved draft after a crash / power cut / closed tab
+restoreEssayDraft();
 
-    console.log("Вкладка Эссе нажата");
-
-    hideAll();
-
-    essaysSection.style.display = "block";
-
-    showEssays();
-
-});
 // ==============================
 // ИМПОРТ НАБОРА
 // ==============================
