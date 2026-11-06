@@ -18,11 +18,11 @@
     var USER_KEY = "wm_user";       // whose data is in this browser
     var DIRTY_KEY = "wm_dirty";     // keys that are not on the server yet
     var BACKUP_KEY = "wm_backup";   // safety copy if data had to be replaced
+    var LOCAL_MODE_KEY = "wm_local_mode";
+    var isGitHubPages = location.hostname.toLowerCase().endsWith(".github.io");
 
     var nativeSet = Storage.prototype.setItem;
     var nativeRemove = Storage.prototype.removeItem;
-        var LOCAL_MODE_KEY = "wm_local_mode";
-    var isGitHubPages = location.hostname.toLowerCase().endsWith(".github.io");
 
     var authed = false;
     var appLoaded = false;
@@ -381,6 +381,8 @@
         "#wmAuth input::placeholder{color:rgba(255,255,255,.55);}" +
         "#wmAuth .wmSubmit{width:100%;padding:14px;font-size:17px;border-radius:14px;transform:none!important;}" +
         "#wmAuth .wmSubmit:disabled{opacity:.6;cursor:wait;}" +
+        "#wmAuth .wmLocal{width:100%;margin-top:14px;padding:13px;font-size:16px;border-radius:14px;" +
+        "background:linear-gradient(135deg,#0f9f83,#22c58b);}" +
         "#wmAuth .wmError{min-height:20px;margin:0 0 10px;color:#fca5a5;font-size:14px;}" +
         "#wmAuth .wmNote{margin:12px 0 0;font-size:13px;opacity:.7;text-align:center;color:#fff;}" +
         "#wmUserChip{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:0 0 12px;" +
@@ -487,6 +489,20 @@
         var note = document.createElement("p");
         note.className = "wmNote";
 
+        var localButton = document.createElement("button");
+        localButton.type = "button";
+        localButton.className = "wmLocal";
+        localButton.textContent = "📱 Открыть локальные данные";
+        localButton.style.display = isGitHubPages ? "block" : "none";
+
+        if (isGitHubPages) {
+            sub.textContent = "На GitHub Pages можно открыть WordMaster без аккаунта.";
+            tabs.style.display = "none";
+            form.style.display = "none";
+            note.textContent = "Локальный режим показывает данные, сохранённые в этом браузере. " +
+                "Синхронизация и вход в аккаунт здесь недоступны.";
+        }
+
         form.appendChild(inUser);
         form.appendChild(inPass);
         form.appendChild(inPass2);
@@ -499,6 +515,7 @@
         card.appendChild(sub);
         card.appendChild(tabs);
         card.appendChild(form);
+        card.appendChild(localButton);
         card.appendChild(note);
         overlay.appendChild(card);
         document.body.appendChild(overlay);
@@ -509,9 +526,11 @@
             event.preventDefault();
             submitForm();
         });
+        localButton.addEventListener("click", enterLocalMode);
 
         ui = {
-            overlay: overlay, tabLogin: tabLogin, tabRegister: tabRegister,
+            overlay: overlay, tabs: tabs, form: form, localButton: localButton,
+            tabLogin: tabLogin, tabRegister: tabRegister,
             inUser: inUser, inPass: inPass, inPass2: inPass2, inInvite: inInvite,
             error: error, submit: submit, note: note
         };
@@ -530,6 +549,13 @@
         form.inPass.autocomplete = register ? "new-password" : "current-password";
         form.submit.textContent = register ? "Создать аккаунт" : "Войти";
         form.error.textContent = "";
+
+        if (isGitHubPages) {
+            form.note.textContent = "Локальный режим показывает данные, сохранённые в этом браузере. " +
+                "Синхронизация и вход в аккаунт здесь недоступны.";
+            form.localButton.style.display = "block";
+            return;
+        }
 
         var hasAnonymousData = !LS.getItem(USER_KEY) && syncedKeys().length > 0;
         form.note.textContent = register
@@ -556,6 +582,26 @@
 
     function hideAuth() {
         if (ui) ui.overlay.style.display = "none";
+    }
+
+    function mountLocalChip() {
+        var old = document.getElementById("wmUserChip");
+        if (old && old.parentNode) old.parentNode.removeChild(old);
+
+        var chip = document.createElement("div");
+        chip.id = "wmUserChip";
+        chip.textContent = "📱 Локальный режим · данные только в этом браузере";
+        var header = document.querySelector("header");
+        if (header) header.insertBefore(chip, header.firstChild);
+        else document.body.insertBefore(chip, document.body.firstChild);
+    }
+
+    function enterLocalMode() {
+        nativeSet.call(LS, LOCAL_MODE_KEY, "true");
+        authed = false;
+        hideAuth();
+        mountLocalChip();
+        loadApp();
     }
 
     async function submitForm() {
@@ -960,6 +1006,12 @@
     // ============================================================
 
     async function boot() {
+        if (isGitHubPages && LS.getItem(LOCAL_MODE_KEY) === "true") {
+            mountLocalChip();
+            loadApp();
+            return;
+        }
+
         var config = await api("GET", "/api/config");
         if (config.ok && config.data) inviteRequired = !!config.data.invite_required;
 
