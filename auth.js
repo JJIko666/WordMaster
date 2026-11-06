@@ -21,6 +21,8 @@
 
     var nativeSet = Storage.prototype.setItem;
     var nativeRemove = Storage.prototype.removeItem;
+        var LOCAL_MODE_KEY = "wm_local_mode";
+    var isGitHubPages = location.hostname.toLowerCase().endsWith(".github.io");
 
     var authed = false;
     var appLoaded = false;
